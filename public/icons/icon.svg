@@ -1,15 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#18181b"/>
-      <stop offset="100%" stop-color="#27272a"/>
-    </linearGradient>
-    <linearGradient id="amber" x1="0%" y1="0%" x2="0%" y2="100%">
+    <linearGradient id="ribbon" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#fbbf24"/>
       <stop offset="100%" stop-color="#f59e0b"/>
     </linearGradient>
+    <filter id="soft-shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000000" flood-opacity="0.08"/>
+    </filter>
   </defs>
-  <rect x="4" y="4" width="120" height="120" rx="32" ry="32" fill="url(#bg)"/>
-  <path d="M42 30 C42 26, 45 24, 49 24 L79 24 C83 24, 86 26, 86 30 L86 98 C86 102, 81 104, 78 102 L64 91 L50 102 C47 104, 42 102, 42 98 Z" fill="url(#amber)"/>
-  <circle cx="86" cy="30" r="10" fill="#ffffff"/>
+  <!-- Clean white squircle with generous negative space -->
+  <rect x="4" y="4" width="120" height="120" rx="34" ry="34" fill="#ffffff" stroke="#e4e4e7" stroke-width="2"/>
+  <!-- Elegant, rounded bookmark ribbon in amber gold with ample margin/breathing room -->
+  <g filter="url(#soft-shadow)">
+    <path d="M46 36 C46 32, 49 30, 53 30 L75 30 C79 30, 82 32, 82 36 L82 88 C82 92, 77 94, 74 92 L64 83.5 L54 92 C51 94, 46 92, 46 88 Z" fill="url(#ribbon)"/>
+  </g>
+  <!-- Delicate "ding" accent dot -->
+  <circle cx="78" cy="36" r="6.5" fill="#ffffff"/>
+  <circle cx="78" cy="36" r="3.5" fill="#f59e0b"/>
 </svg>

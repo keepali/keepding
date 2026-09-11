@@ -1,40 +1,66 @@
 import { getBookmarkByUrl, saveBookmark } from '../db';
+import { getLocale, t, Locale } from '../utils/i18n';
+
+async function setupContextMenus(locale?: Locale) {
+  const currentLocale = locale || await getLocale();
+
+  chrome.contextMenus.removeAll(() => {
+    // Save page
+    chrome.contextMenus.create({
+      id: 'keepding-save-page',
+      title: t('menu_save_page', currentLocale),
+      contexts: ['page']
+    });
+
+    // Save selected text
+    chrome.contextMenus.create({
+      id: 'keepding-save-selection',
+      title: t('menu_save_selection', currentLocale),
+      contexts: ['selection']
+    });
+
+    // Save image
+    chrome.contextMenus.create({
+      id: 'keepding-save-image',
+      title: t('menu_save_image', currentLocale),
+      contexts: ['image']
+    });
+
+    // Save link
+    chrome.contextMenus.create({
+      id: 'keepding-save-link',
+      title: t('menu_save_link', currentLocale),
+      contexts: ['link']
+    });
+
+    // Open manager
+    chrome.contextMenus.create({
+      id: 'keepding-open-manager',
+      title: t('menu_open_manager', currentLocale),
+      contexts: ['action']
+    });
+  });
+}
 
 chrome.runtime.onInstalled.addListener(() => {
-  // Save page
-  chrome.contextMenus.create({
-    id: 'keepding-save-page',
-    title: '收藏此网页',
-    contexts: ['page']
-  });
+  setupContextMenus();
+});
 
-  // Save selected text (Google Keep style)
-  chrome.contextMenus.create({
-    id: 'keepding-save-selection',
-    title: '收藏选中文本到笔记',
-    contexts: ['selection']
-  });
+chrome.runtime.onStartup.addListener(() => {
+  setupContextMenus();
+});
 
-  // Save image
-  chrome.contextMenus.create({
-    id: 'keepding-save-image',
-    title: '收藏图片到笔记',
-    contexts: ['image']
-  });
+// Listen for locale changes
+chrome.runtime.onMessage.addListener((message) => {
+  if (message && message.type === 'LOCALE_CHANGED') {
+    setupContextMenus(message.locale);
+  }
+});
 
-  // Save link
-  chrome.contextMenus.create({
-    id: 'keepding-save-link',
-    title: '收藏此链接',
-    contexts: ['link']
-  });
-
-  // Open manager
-  chrome.contextMenus.create({
-    id: 'keepding-open-manager',
-    title: '打开管理面板',
-    contexts: ['action']
-  });
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local' && changes.keepding_locale) {
+    setupContextMenus(changes.keepding_locale.newValue);
+  }
 });
 
 function flashBadge(tabId: number, text: string = '✓') {
@@ -68,7 +94,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     } else {
       await saveBookmark({
         url: pageUrl,
-        title: tab.title || pageUrl || '文本摘录',
+        title: tab.title || pageUrl || 'Text clip',
         description: '',
         notes: quote,
         tags: [],
@@ -96,7 +122,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     } else {
       await saveBookmark({
         url: pageUrl,
-        title: tab.title || '图片收藏',
+        title: tab.title || 'Image clip',
         description: '',
         notes: `![](${imageUrl})`,
         images: [imageUrl],

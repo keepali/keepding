@@ -14,6 +14,7 @@ import { exportToJSON, exportToNetscapeHTML, downloadFile } from '../services/ex
 import { parseJSONImport, parseHTMLBookmarks } from '../services/importer';
 import { renderMarkdown } from '../utils/markdown';
 import { getDomain, formatTimeAgo, copyToClipboard } from '../utils/helpers';
+import { getLocale, setLocale, t, Locale } from '../utils/i18n';
 
 // State
 let bookmarks: Bookmark[] = [];
@@ -22,6 +23,7 @@ let selectedTags: string[] = [];
 let searchQuery: string = '';
 let sortOrder: 'date_desc' | 'date_asc' | 'title_asc' = 'date_desc';
 let isSingleColumn = false;
+let currentLocale: Locale = 'en';
 
 // DOM Elements
 const searchInput = document.getElementById('search-input') as HTMLInputElement;
@@ -29,14 +31,23 @@ const btnClearSearch = document.getElementById('btn-clear-search') as HTMLButton
 const sortSelect = document.getElementById('sort-select') as HTMLSelectElement;
 const bookmarksContainer = document.getElementById('bookmarks-container') as HTMLElement;
 const emptyState = document.getElementById('empty-state') as HTMLElement;
+const emptyStateText = document.getElementById('empty-state-text') as HTMLElement;
 const viewTitle = document.getElementById('view-title') as HTMLElement;
 const viewCount = document.getElementById('view-count') as HTMLElement;
 const activeTagPills = document.getElementById('active-tag-pills') as HTMLElement;
 const tagsList = document.getElementById('tags-list') as HTMLElement;
 const btnClearTags = document.getElementById('btn-clear-tags') as HTMLButtonElement;
 const btnLayoutToggle = document.getElementById('btn-layout-toggle') as HTMLButtonElement;
+const btnLang = document.getElementById('btn-lang') as HTMLButtonElement;
 
-// Sidebar counts
+// Sidebar text & counts
+const navTextAll = document.getElementById('nav-text-all') as HTMLElement;
+const navTextNotes = document.getElementById('nav-text-notes') as HTMLElement;
+const navTextImages = document.getElementById('nav-text-images') as HTMLElement;
+const navTextUnread = document.getElementById('nav-text-unread') as HTMLElement;
+const navTextArchived = document.getElementById('nav-text-archived') as HTMLElement;
+const navTextTags = document.getElementById('nav-text-tags') as HTMLElement;
+
 const countAll = document.getElementById('count-all') as HTMLElement;
 const countNotes = document.getElementById('count-notes') as HTMLElement;
 const countImages = document.getElementById('count-images') as HTMLElement;
@@ -46,11 +57,13 @@ const countArchived = document.getElementById('count-archived') as HTMLElement;
 // Quick Compose elements
 const composeCollapsed = document.getElementById('compose-collapsed') as HTMLElement;
 const composeForm = document.getElementById('compose-form') as HTMLFormElement;
+const quickComposeText = document.getElementById('quick-compose-text') as HTMLElement;
 const quickNotes = document.getElementById('quick-notes') as HTMLTextAreaElement;
 const quickTitle = document.getElementById('quick-title') as HTMLInputElement;
 const quickUrl = document.getElementById('quick-url') as HTMLInputElement;
 const quickTags = document.getElementById('quick-tags') as HTMLInputElement;
 const btnCancelCompose = document.getElementById('btn-cancel-compose') as HTMLButtonElement;
+const btnSubmitCompose = document.getElementById('btn-submit-compose') as HTMLButtonElement;
 
 // Toast
 const toast = document.getElementById('toast') as HTMLElement;
@@ -67,7 +80,7 @@ function showToast(message: string) {
 
 // Modal Elements
 const bookmarkModal = document.getElementById('bookmark-modal') as HTMLElement;
-const modalTitle = document.getElementById("modal-title") as HTMLElement;
+const modalTitle = document.getElementById('modal-title') as HTMLElement;
 const modalForm = document.getElementById('modal-form') as HTMLFormElement;
 const modalId = document.getElementById('modal-id') as HTMLInputElement;
 const modalUrl = document.getElementById('modal-url') as HTMLInputElement;
@@ -83,9 +96,29 @@ const modalTogglePreview = document.getElementById('modal-toggle-preview') as HT
 const modalTagSuggestions = document.getElementById('modal-tag-suggestions') as HTMLElement;
 const btnCloseModal = document.getElementById('btn-close-modal') as HTMLButtonElement;
 const btnCancelModal = document.getElementById('btn-cancel-modal') as HTMLButtonElement;
+const btnSubmitModal = document.getElementById('btn-submit-modal') as HTMLButtonElement;
+
+const modalLabelNotes = document.getElementById('modal-label-notes') as HTMLElement;
+const modalLabelTitle = document.getElementById('modal-label-title') as HTMLElement;
+const modalLabelUrl = document.getElementById('modal-label-url') as HTMLElement;
+const modalLabelTags = document.getElementById('modal-label-tags') as HTMLElement;
+const modalLabelPin = document.getElementById('modal-label-pin') as HTMLElement;
+const modalLabelUnread = document.getElementById('modal-label-unread') as HTMLElement;
+const modalLabelArchived = document.getElementById('modal-label-archived') as HTMLElement;
 
 // Import / Export Elements
 const ioModal = document.getElementById('io-modal') as HTMLElement;
+const ioTitle = document.getElementById('io-title') as HTMLElement;
+const ioExportHeading = document.getElementById('io-export-heading') as HTMLElement;
+const ioJsonTitle = document.getElementById('io-json-title') as HTMLElement;
+const ioJsonDesc = document.getElementById('io-json-desc') as HTMLElement;
+const ioHtmlTitle = document.getElementById('io-html-title') as HTMLElement;
+const ioHtmlDesc = document.getElementById('io-html-desc') as HTMLElement;
+const ioImportHeading = document.getElementById('io-import-heading') as HTMLElement;
+const ioOverwriteLabel = document.getElementById('io-overwrite-label') as HTMLElement;
+const ioDropTitle = document.getElementById('io-drop-title') as HTMLElement;
+const ioDropHint = document.getElementById('io-drop-hint') as HTMLElement;
+
 const btnOpenIoModal = document.getElementById('btn-open-io-modal') as HTMLButtonElement;
 const btnCloseIo = document.getElementById('btn-close-io') as HTMLButtonElement;
 const btnExportJson = document.getElementById('btn-export-json') as HTMLButtonElement;
@@ -97,7 +130,63 @@ const importResult = document.getElementById('import-result') as HTMLElement;
 
 let isModalPreviewingNotes = false;
 
-// Quick compose handling
+function updateTexts() {
+  btnLang.textContent = currentLocale === 'en' ? 'EN' : '中';
+
+  navTextAll.textContent = t('nav_all', currentLocale);
+  navTextNotes.textContent = t('nav_notes', currentLocale);
+  navTextImages.textContent = t('nav_images', currentLocale);
+  navTextUnread.textContent = t('nav_unread', currentLocale);
+  navTextArchived.textContent = t('nav_archived', currentLocale);
+  navTextTags.textContent = t('nav_tags', currentLocale);
+  btnClearTags.textContent = t('btn_clear_tags', currentLocale);
+
+  searchInput.placeholder = t('search_placeholder', currentLocale);
+  quickComposeText.textContent = t('quick_compose_placeholder', currentLocale);
+  quickNotes.placeholder = t('quick_compose_placeholder', currentLocale);
+  quickTitle.placeholder = t('quick_compose_title', currentLocale);
+  quickUrl.placeholder = t('quick_compose_url', currentLocale);
+  quickTags.placeholder = t('quick_compose_tags', currentLocale);
+  btnCancelCompose.textContent = t('quick_compose_cancel', currentLocale);
+  btnSubmitCompose.textContent = t('quick_compose_save', currentLocale);
+
+  sortSelect.options[0].text = t('sort_date_desc', currentLocale);
+  sortSelect.options[1].text = t('sort_date_asc', currentLocale);
+  sortSelect.options[2].text = t('sort_title_asc', currentLocale);
+
+  emptyStateText.textContent = t('empty_state', currentLocale);
+
+  modalTitle.textContent = t('modal_edit_title', currentLocale);
+  modalLabelNotes.textContent = t('modal_label_notes', currentLocale);
+  modalLabelTitle.textContent = t('modal_label_title', currentLocale);
+  modalLabelUrl.textContent = t('modal_label_url', currentLocale);
+  modalLabelTags.textContent = t('modal_label_tags', currentLocale);
+  modalLabelPin.textContent = t('card_pinned', currentLocale);
+  modalLabelUnread.textContent = t('card_unread', currentLocale);
+  modalLabelArchived.textContent = t('nav_archived', currentLocale);
+  btnCancelModal.textContent = t('modal_cancel', currentLocale);
+  btnSubmitModal.textContent = t('modal_save', currentLocale);
+
+  ioTitle.textContent = t('io_modal_title', currentLocale);
+  ioExportHeading.textContent = t('io_export_section', currentLocale);
+  ioJsonTitle.textContent = t('io_export_json_title', currentLocale);
+  ioJsonDesc.textContent = t('io_export_json_desc', currentLocale);
+  ioHtmlTitle.textContent = t('io_export_html_title', currentLocale);
+  ioHtmlDesc.textContent = t('io_export_html_desc', currentLocale);
+  ioImportHeading.textContent = t('io_import_section', currentLocale);
+  ioOverwriteLabel.textContent = t('io_import_overwrite', currentLocale);
+  ioDropTitle.textContent = t('io_import_dropzone', currentLocale);
+  ioDropHint.textContent = t('io_import_hint', currentLocale);
+}
+
+btnLang.addEventListener('click', async () => {
+  currentLocale = currentLocale === 'en' ? 'zh_CN' : 'en';
+  await setLocale(currentLocale);
+  updateTexts();
+  render();
+});
+
+// Quick compose
 composeCollapsed.addEventListener('click', () => {
   composeCollapsed.classList.add('hidden');
   composeForm.classList.remove('hidden');
@@ -119,7 +208,6 @@ composeForm.addEventListener('submit', async (e) => {
 
   if (!notes && !url && !title) return;
 
-  // Extract images from markdown if any
   const imageRegex = /!\[.*?\]\((https?:\/\/[^\s\)]+)\)/g;
   const extractedImages: string[] = [];
   let match;
@@ -142,10 +230,10 @@ composeForm.addEventListener('submit', async (e) => {
   composeForm.classList.add('hidden');
   composeCollapsed.classList.remove('hidden');
   await reloadData();
-  showToast('便签已保存');
+  showToast(t('popup_saved', currentLocale));
 });
 
-// Layout toggle (2 cols vs 1 col)
+// Layout toggle
 btnLayoutToggle.addEventListener('click', () => {
   isSingleColumn = !isSingleColumn;
   if (isSingleColumn) {
@@ -176,7 +264,7 @@ async function updateSidebarTags() {
   tagsList.innerHTML = '';
 
   if (stats.length === 0) {
-    tagsList.innerHTML = '<div class="text-[11px] text-zinc-400 py-1 px-1">暂无标签</div>';
+    tagsList.innerHTML = `<div class="text-[11px] text-zinc-400 py-1 px-1">${currentLocale === 'en' ? 'No tags' : '暂无标签'}</div>`;
     btnClearTags.classList.add('hidden');
     return;
   }
@@ -232,15 +320,15 @@ function renderActiveTagPills() {
 
 function render() {
   if (activeFilter === 'notes') {
-    viewTitle.textContent = '笔记与摘录';
+    viewTitle.textContent = t('nav_notes', currentLocale);
   } else if (activeFilter === 'images') {
-    viewTitle.textContent = '图片收藏';
+    viewTitle.textContent = t('nav_images', currentLocale);
   } else if (activeFilter === 'unread') {
-    viewTitle.textContent = '稍后读';
+    viewTitle.textContent = t('nav_unread', currentLocale);
   } else if (activeFilter === 'archived') {
-    viewTitle.textContent = '归档';
+    viewTitle.textContent = t('nav_archived', currentLocale);
   } else {
-    viewTitle.textContent = '全部卡片';
+    viewTitle.textContent = t('nav_all', currentLocale);
   }
 
   renderActiveTagPills();
@@ -261,7 +349,6 @@ function render() {
   });
 }
 
-// Create Memos & Keep style Card
 function createBookmarkCard(bm: Bookmark): HTMLElement {
   const domain = bm.url ? getDomain(bm.url) : '';
   const timeAgo = formatTimeAgo(bm.createdAt);
@@ -271,7 +358,6 @@ function createBookmarkCard(bm: Bookmark): HTMLElement {
     bm.pinned ? 'border-zinc-300 ring-1 ring-zinc-200 shadow-2xs' : 'border-zinc-200/80 hover:border-zinc-300 shadow-2xs'
   }`;
 
-  // 1. Image preview if any (from bm.images)
   let imagesHtml = '';
   if (bm.images && bm.images.length > 0) {
     const firstImg = bm.images[0];
@@ -282,7 +368,6 @@ function createBookmarkCard(bm: Bookmark): HTMLElement {
     `;
   }
 
-  // 2. Rendered Markdown notes (shown directly like Memos / Keep)
   let notesHtml = '';
   if (bm.notes && bm.notes.trim()) {
     notesHtml = `
@@ -292,7 +377,6 @@ function createBookmarkCard(bm: Bookmark): HTMLElement {
     `;
   }
 
-  // 3. Source Link Box (Linkding style source link if URL present)
   let sourceLinkHtml = '';
   if (bm.url) {
     sourceLinkHtml = `
@@ -307,13 +391,11 @@ function createBookmarkCard(bm: Bookmark): HTMLElement {
       </div>
     `;
   } else if (bm.title && !bm.notes.includes(bm.title)) {
-    // Pure memo with title
     sourceLinkHtml = `
       <div class="text-xs font-semibold text-zinc-900">${escapeHtml(bm.title)}</div>
     `;
   }
 
-  // 4. Tags
   let tagsHtml = '';
   if (bm.tags && bm.tags.length > 0) {
     tagsHtml = `
@@ -327,66 +409,56 @@ function createBookmarkCard(bm: Bookmark): HTMLElement {
     `;
   }
 
-  // Card assembly
   card.innerHTML = `
-    <!-- Top badge bar if pinned or unread -->
     ${
       bm.pinned || bm.unread
         ? `<div class="flex items-center gap-1.5 text-[10px]">
-            ${bm.pinned ? '<span class="inline-flex items-center gap-0.5 text-zinc-700 font-medium">📌 置顶</span>' : ''}
-            ${bm.unread ? '<span class="inline-flex items-center gap-0.5 text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded font-medium">稍后读</span>' : ''}
+            ${bm.pinned ? `<span class="inline-flex items-center gap-0.5 text-zinc-700 font-medium">📌 ${t('card_pinned', currentLocale)}</span>` : ''}
+            ${bm.unread ? `<span class="inline-flex items-center gap-0.5 text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded font-medium">${t('card_unread', currentLocale)}</span>` : ''}
           </div>`
         : ''
     }
 
-    <!-- Image preview -->
     ${imagesHtml}
-
-    <!-- Notes body -->
     ${notesHtml}
-
-    <!-- Source URL box -->
     ${sourceLinkHtml}
-
-    <!-- Tags -->
     ${tagsHtml}
 
-    <!-- Footer Toolbar -->
     <div class="flex items-center justify-between pt-1 text-[10px] text-zinc-400 font-mono border-t border-zinc-100">
       <span>${timeAgo}</span>
 
       <div class="flex items-center gap-0.5 opacity-40 group-hover:opacity-100 transition-opacity">
-        <button type="button" class="btn-pin p-1 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors" title="${bm.pinned ? '取消置顶' : '置顶'}">
+        <button type="button" class="btn-pin p-1 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors" title="${bm.pinned ? t('card_unpin', currentLocale) : t('card_pin', currentLocale)}">
           <svg class="w-3.5 h-3.5 ${bm.pinned ? 'text-indigo-600 fill-indigo-100' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
           </svg>
         </button>
 
-        <button type="button" class="btn-unread p-1 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors" title="${bm.unread ? '标为已读' : '稍后阅读'}">
+        <button type="button" class="btn-unread p-1 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors" title="${bm.unread ? t('card_mark_read', currentLocale) : t('card_mark_unread', currentLocale)}">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </button>
 
-        <button type="button" class="btn-copy p-1 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors" title="复制内容">
+        <button type="button" class="btn-copy p-1 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors" title="${t('card_copy', currentLocale)}">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3" />
           </svg>
         </button>
 
-        <button type="button" class="btn-edit p-1 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors" title="编辑">
+        <button type="button" class="btn-edit p-1 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors" title="${t('card_edit', currentLocale)}">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
         </button>
 
-        <button type="button" class="btn-archive p-1 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors" title="${bm.archived ? '移出归档' : '归档'}">
+        <button type="button" class="btn-archive p-1 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors" title="${bm.archived ? t('card_unarchive', currentLocale) : t('card_archive', currentLocale)}">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
           </svg>
         </button>
 
-        <button type="button" class="btn-delete p-1 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="删除">
+        <button type="button" class="btn-delete p-1 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="${t('card_delete', currentLocale)}">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
@@ -395,7 +467,6 @@ function createBookmarkCard(bm: Bookmark): HTMLElement {
     </div>
   `;
 
-  // Tag click
   card.querySelectorAll('.btn-card-tag').forEach(tagBtn => {
     tagBtn.addEventListener('click', () => {
       const tag = tagBtn.getAttribute('data-tag');
@@ -403,42 +474,36 @@ function createBookmarkCard(bm: Bookmark): HTMLElement {
     });
   });
 
-  // Pin toggle
   card.querySelector('.btn-pin')!.addEventListener('click', async () => {
     await togglePinned(bm.id);
     await reloadData();
   });
 
-  // Unread toggle
   card.querySelector('.btn-unread')!.addEventListener('click', async () => {
     await toggleUnread(bm.id);
     await reloadData();
   });
 
-  // Copy
   card.querySelector('.btn-copy')!.addEventListener('click', async () => {
     const textToCopy = bm.notes || bm.url || bm.title;
     await copyToClipboard(textToCopy);
-    showToast('已复制内容');
+    showToast(t('card_copied', currentLocale));
   });
 
-  // Edit
   card.querySelector('.btn-edit')!.addEventListener('click', () => {
     openEditModal(bm);
   });
 
-  // Archive
   card.querySelector('.btn-archive')!.addEventListener('click', async () => {
     await toggleArchived(bm.id);
     await reloadData();
   });
 
-  // Delete
   card.querySelector('.btn-delete')!.addEventListener('click', async () => {
-    if (confirm('确定删除此卡片？')) {
+    if (confirm(t('card_delete_confirm', currentLocale))) {
       await deleteBookmark(bm.id);
       await reloadData();
-      showToast('已删除');
+      showToast(t('card_delete', currentLocale));
     }
   });
 
@@ -455,7 +520,7 @@ function escapeHtml(str: string): string {
 }
 
 async function openEditModal(bm: Bookmark) {
-  modalTitle.textContent = '编辑卡片';
+  modalTitle.textContent = t('modal_edit_title', currentLocale);
   modalId.value = bm.id;
   modalUrl.value = bm.url || '';
   modalBmTitle.value = bm.title || '';
@@ -475,7 +540,7 @@ function resetModalPreview() {
   isModalPreviewingNotes = false;
   modalNotesEdit.classList.remove('hidden');
   modalNotesPreview.classList.add('hidden');
-  modalTogglePreview.textContent = '预览';
+  modalTogglePreview.textContent = currentLocale === 'en' ? 'Preview' : '预览';
 }
 
 async function renderModalTagSuggestions(existingTags: string[]) {
@@ -516,7 +581,6 @@ modalForm.addEventListener('submit', async (e) => {
   const id = modalId.value || undefined;
   const tags = modalTags.value.split(/[\s,，]+/).map(t => t.trim().toLowerCase()).filter(Boolean);
 
-  // Extract images from markdown
   const imageRegex = /!\[.*?\]\((https?:\/\/[^\s\)]+)\)/g;
   const extractedImages: string[] = [];
   let match;
@@ -539,20 +603,20 @@ modalForm.addEventListener('submit', async (e) => {
 
   bookmarkModal.classList.add('hidden');
   await reloadData();
-  showToast('已更新');
+  showToast(t('popup_saved', currentLocale));
 });
 
 modalTogglePreview.addEventListener('click', () => {
   isModalPreviewingNotes = !isModalPreviewingNotes;
   if (isModalPreviewingNotes) {
-    modalNotesPreview.innerHTML = renderMarkdown(modalNotes.value) || '<p class="text-zinc-400 italic text-[11px]">暂无笔记</p>';
+    modalNotesPreview.innerHTML = renderMarkdown(modalNotes.value) || `<p class="text-zinc-400 italic text-[11px]">${t('popup_notes_empty', currentLocale)}</p>`;
     modalNotesEdit.classList.add('hidden');
     modalNotesPreview.classList.remove('hidden');
-    modalTogglePreview.textContent = '编辑';
+    modalTogglePreview.textContent = currentLocale === 'en' ? 'Edit' : '编辑';
   } else {
     modalNotesEdit.classList.remove('hidden');
     modalNotesPreview.classList.add('hidden');
-    modalTogglePreview.textContent = '预览';
+    modalTogglePreview.textContent = currentLocale === 'en' ? 'Preview' : '预览';
   }
 });
 
@@ -571,7 +635,7 @@ btnExportJson.addEventListener('click', async () => {
   const jsonContent = exportToJSON(all);
   const dateStr = new Date().toISOString().slice(0, 10);
   downloadFile(jsonContent, `keepding-backup-${dateStr}.json`, 'application/json');
-  showToast('已导出 JSON');
+  showToast(currentLocale === 'en' ? 'Exported JSON' : '已导出 JSON');
 });
 
 btnExportHtml.addEventListener('click', async () => {
@@ -579,7 +643,7 @@ btnExportHtml.addEventListener('click', async () => {
   const htmlContent = exportToNetscapeHTML(all);
   const dateStr = new Date().toISOString().slice(0, 10);
   downloadFile(htmlContent, `keepding-bookmarks-${dateStr}.html`, 'text/html');
-  showToast('已导出 HTML 书签');
+  showToast(currentLocale === 'en' ? 'Exported HTML' : '已导出 HTML');
 });
 
 dropZone.addEventListener('click', () => fileImport.click());
@@ -611,26 +675,29 @@ async function handleFileImport(file: File) {
   const isHtml = file.name.endsWith('.html') || file.name.endsWith('.htm');
 
   if (!isJson && !isHtml) {
-    showImportFeedback('仅支持 .json 或 .html 文件', 'error');
+    showImportFeedback(t('io_format_error', currentLocale), 'error');
     return;
   }
 
-  showImportFeedback('正在导入...', 'info');
+  showImportFeedback(t('io_importing', currentLocale), 'info');
 
   try {
     const text = await file.text();
     const parsedItems = isJson ? parseJSONImport(text) : parseHTMLBookmarks(text);
 
     if (parsedItems.length === 0) {
-      showImportFeedback('未找到有效书签条目', 'error');
+      showImportFeedback(currentLocale === 'en' ? 'No items found in file' : '未找到有效书签条目', 'error');
       return;
     }
 
     const result = await bulkImportBookmarks(parsedItems, overwrite);
-    showImportFeedback(`导入完成：新增 ${result.added} 条，更新 ${result.updated} 条，跳过 ${result.skipped} 条`, 'success');
+    showImportFeedback(
+      t('io_import_success', currentLocale, { added: result.added, updated: result.updated, skipped: result.skipped }),
+      'success'
+    );
     await reloadData();
   } catch (err: any) {
-    showImportFeedback(`导入失败: ${err.message || '文件格式错误'}`, 'error');
+    showImportFeedback(t('io_import_error', currentLocale, { error: err.message || 'Error' }), 'error');
   }
 }
 
@@ -682,7 +749,7 @@ btnClearTags.addEventListener('click', () => {
   render();
 });
 
-// Shortcuts: '/' or ⌘K to focus search, Esc to dismiss
+// Shortcuts
 window.addEventListener('keydown', (e) => {
   if ((e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) &&
       document.activeElement !== searchInput &&
@@ -704,4 +771,10 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-document.addEventListener('DOMContentLoaded', reloadData);
+async function start() {
+  currentLocale = await getLocale();
+  updateTexts();
+  await reloadData();
+}
+
+document.addEventListener('DOMContentLoaded', start);

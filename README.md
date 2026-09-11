@@ -1,31 +1,49 @@
+<div align="center">
+
 # Keepding
 
-A fast, offline-first personal library and memo board for Google Chrome. Inspired by the clarity of Linkding and the visual flow of Google Keep.
+**A fast, offline-first personal memo board and bookmark manager for Google Chrome.**  
+*Inspired by the speed and simplicity of Linkding, and the visual flow of Google Keep.*
+
+[English](README.md) | [简体中文](README.zh-CN.md)
+
+<p align="center">
+  <img src="public/icons/icon.svg" width="80" height="80" alt="Keepding Logo" />
+</p>
 
 [![Chrome Manifest V3](https://img.shields.io/badge/Manifest-V3-18181b.svg?style=flat-square)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-18181b.svg?style=flat-square)](LICENSE)
 
+</div>
+
 ---
 
-## Highlights
+## Key Highlights
 
-- **Offline & Local-First**: All bookmarks, notes, images, and clips are stored securely in browser IndexedDB. Zero cloud tracking, zero network dependencies.
-- **Keep + Linkding Card Flow**:
-  - Notes are displayed directly on cards with Markdown formatting (blockquotes, code blocks, lists).
+- **100% Offline & Private**: All notes, bookmarks, images, and text clips are stored exclusively on your local machine using browser IndexedDB. Zero cloud telemetry, zero remote tracking.
+- **Card-Based Stream (Keep + Linkding)**:
+  - Markdown notes and quotes are rendered directly on cards rather than hidden behind collapse menus.
   - Quick note creation bar at the top of the dashboard for capturing thoughts on the fly.
   - Pin important cards (`📌`) to the top of your stream.
 - **Multi-Modal Web Capture**:
   - **Links**: Save webpage or right-click any link to bookmark.
-  - **Text Clips**: Highlight text on any page, right-click *"收藏选中文本到笔记"*, or open the popup to auto-capture quotes.
-  - **Images**: Right-click any image on the web and choose *"收藏图片到笔记"* to save the visual clip directly to your collection.
-- **Fast Search & Syntax**: Real-time filtering across notes, titles, URLs, and tags. Supports `#tag`, `!unread`, `!note`, `!image`, and `site:domain`.
-- **Lossless Import & Export**: Full JSON backups and standard Netscape HTML bookmarks (compatible with Chrome, Firefox, Safari, Pocket, Raindrop).
+  - **Text Clips**: Highlight text on any page, right-click *"Save selection to note"*, or open the popup (`Cmd+Shift+L`) to auto-capture quotes.
+  - **Images**: Right-click any image on the web and select *"Save image to note"* to save visual clips directly with source page attribution.
+- **Full Internationalization (i18n)**:
+  - English by default, with one-click toggle to Chinese (`EN / 中文`).
+  - Right-click context menus automatically follow your selected language.
+- **Fast Search & Syntax**:
+  - Real-time instant filtering across notes, titles, URLs, and tags.
+  - Query syntax support: `#tag`, `!unread`, `!note`, `!image`, and `site:domain`.
+- **Lossless Import & Export**:
+  - Full JSON backups (including notes, images, tags, timestamps).
+  - Standard Netscape HTML bookmarks (compatible with Chrome, Firefox, Safari, Pocket, Raindrop).
 
 ---
 
 ## Installation
 
-### From Source
+### Load Unpacked (Chrome Developer Mode)
 
 1. Clone the repository:
    ```bash
@@ -40,9 +58,9 @@ A fast, offline-first personal library and memo board for Google Chrome. Inspire
    ```
 
 3. Load the extension in Chrome:
-   - Go to `chrome://extensions`.
-   - Enable **Developer mode** in the top right.
-   - Click **Load unpacked** and select the `dist/` directory.
+   - Open `chrome://extensions` in your browser.
+   - Toggle **Developer mode** in the upper-right corner.
+   - Click **Load unpacked** and select the `dist/` directory inside this project.
 
 ---
 
@@ -50,24 +68,24 @@ A fast, offline-first personal library and memo board for Google Chrome. Inspire
 
 | Shortcut | Action |
 | :--- | :--- |
-| `Cmd+Shift+L` / `Ctrl+Shift+L` | Open quick bookmark popup |
-| `Cmd+Shift+O` / `Ctrl+Shift+O` | Open library memo board |
-| `Cmd+S` / `Ctrl+S` | Save in popup |
-| `/` or `Cmd+K` | Focus search bar (in library) |
-| `Esc` | Close modal or clear search |
+| `Cmd+Shift+L` / `Ctrl+Shift+L` | Open quick bookmark & note popup |
+| `Cmd+Shift+O` / `Ctrl+Shift+O` | Open full library dashboard |
+| `Cmd+S` / `Ctrl+S` | Save bookmark (inside popup) |
+| `/` or `Cmd+K` | Focus search bar (inside dashboard) |
+| `Esc` | Close modal or clear search query |
 
 ---
 
 ## Development
 
 ```bash
-# Watch mode
+# Start Vite in watch mode
 npm run dev
 
-# Tests
+# Run automated tests
 npm test
 
-# Build production bundle and Chrome Web Store zip
+# Build production bundle and package Chrome Web Store zip
 npm run package
 ```
 
@@ -75,4 +93,4 @@ npm run package
 
 ## License
 
-MIT
+[MIT](LICENSE) © [keepali](https://github.com/keepali)
