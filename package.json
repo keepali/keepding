@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite build --watch",
     "build": "tsc && vite build",
-    "test": "tsx --test tests/services.test.ts"
+    "test": "tsx --test tests/services.test.ts",
+    "package": "npm run build && rm -f pinscribe-extension.zip && (cd dist && zip -r ../pinscribe-extension.zip . -x \"*.DS_Store\")"
   },
   "dependencies": {
     "idb": "^8.0.2",
