@@ -1,23 +1,38 @@
 import { getBookmarkByUrl, saveBookmark } from '../db';
 
 chrome.runtime.onInstalled.addListener(() => {
-  // Context menu for page
+  // Save page
   chrome.contextMenus.create({
     id: 'pinscribe-save-page',
     title: '收藏此网页',
     contexts: ['page']
   });
 
-  // Context menu for selected text (similar to Google Keep "Save to Keep")
+  // Save selected text (Google Keep style)
   chrome.contextMenus.create({
     id: 'pinscribe-save-selection',
-    title: '保存选中内容到笔记',
+    title: '收藏选中文本到笔记',
     contexts: ['selection']
   });
 
+  // Save image
+  chrome.contextMenus.create({
+    id: 'pinscribe-save-image',
+    title: '收藏图片到笔记',
+    contexts: ['image']
+  });
+
+  // Save link
+  chrome.contextMenus.create({
+    id: 'pinscribe-save-link',
+    title: '收藏此链接',
+    contexts: ['link']
+  });
+
+  // Open manager
   chrome.contextMenus.create({
     id: 'pinscribe-open-manager',
-    title: '打开书签管理面板',
+    title: '打开管理面板',
     contexts: ['action']
   });
 });
@@ -31,14 +46,15 @@ function flashBadge(tabId: number, text: string = '✓') {
 }
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (!tab || !tab.url || !tab.id) return;
+  if (!tab || !tab.id) return;
+  const pageUrl = info.pageUrl || tab.url || '';
 
   if (info.menuItemId === 'pinscribe-save-selection') {
     const selectedText = (info.selectionText || '').trim();
     if (!selectedText) return;
 
     const quote = `> ${selectedText}`;
-    const existing = await getBookmarkByUrl(tab.url);
+    const existing = pageUrl ? await getBookmarkByUrl(pageUrl) : undefined;
 
     if (existing) {
       const mergedNotes = existing.notes
@@ -51,8 +67,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       });
     } else {
       await saveBookmark({
-        url: tab.url,
-        title: tab.title || tab.url,
+        url: pageUrl,
+        title: tab.title || pageUrl || '文本摘录',
         description: '',
         notes: quote,
         tags: [],
@@ -62,12 +78,56 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     }
 
     flashBadge(tab.id, '✓');
-  } else if (info.menuItemId === 'pinscribe-save-page') {
-    const existing = await getBookmarkByUrl(tab.url);
+  } else if (info.menuItemId === 'pinscribe-save-image' && info.srcUrl) {
+    const imageUrl = info.srcUrl.trim();
+    const existing = pageUrl ? await getBookmarkByUrl(pageUrl) : undefined;
+
+    if (existing) {
+      const currentImages = existing.images || [];
+      const updatedImages = currentImages.includes(imageUrl) ? currentImages : [...currentImages, imageUrl];
+      const imageMd = `![](${imageUrl})`;
+      const updatedNotes = existing.notes ? `${existing.notes}\n\n${imageMd}` : imageMd;
+
+      await saveBookmark({
+        ...existing,
+        images: updatedImages,
+        notes: updatedNotes,
+      });
+    } else {
+      await saveBookmark({
+        url: pageUrl,
+        title: tab.title || '图片收藏',
+        description: '',
+        notes: `![](${imageUrl})`,
+        images: [imageUrl],
+        tags: ['images'],
+        unread: true,
+        archived: false
+      });
+    }
+
+    flashBadge(tab.id, '✓');
+  } else if (info.menuItemId === 'pinscribe-save-link' && info.linkUrl) {
+    const linkUrl = info.linkUrl.trim();
+    const existing = await getBookmarkByUrl(linkUrl);
     if (!existing) {
       await saveBookmark({
-        url: tab.url,
-        title: tab.title || tab.url,
+        url: linkUrl,
+        title: linkUrl,
+        description: '',
+        notes: '',
+        tags: [],
+        unread: true,
+        archived: false
+      });
+    }
+    flashBadge(tab.id, '✓');
+  } else if (info.menuItemId === 'pinscribe-save-page' && pageUrl) {
+    const existing = await getBookmarkByUrl(pageUrl);
+    if (!existing) {
+      await saveBookmark({
+        url: pageUrl,
+        title: tab.title || pageUrl,
         description: '',
         notes: '',
         tags: [],

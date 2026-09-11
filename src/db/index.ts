@@ -33,13 +33,13 @@ export function getDB(): Promise<IDBPDatabase<PinscribeDB>> {
 }
 
 export function generateId(): string {
-  return 'bm_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 9);
+  return 'pin_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 9);
 }
 
 export function normalizeUrl(url: string): string {
+  if (!url || !url.trim()) return '';
   try {
     const parsed = new URL(url.trim());
-    // remove hash if wanted, but keep query params
     return parsed.href;
   } catch {
     return url.trim();
@@ -52,13 +52,14 @@ export async function getBookmarkById(id: string): Promise<Bookmark | undefined>
 }
 
 export async function getBookmarkByUrl(url: string): Promise<Bookmark | undefined> {
+  if (!url) return undefined;
   const db = await getDB();
   const normalized = normalizeUrl(url);
-  // Search index first
+  if (!normalized) return undefined;
+
   const match = await db.getFromIndex('bookmarks', 'by-url', normalized);
   if (match) return match;
 
-  // Fallback: match without trailing slash
   const alt = normalized.endsWith('/') ? normalized.slice(0, -1) : normalized + '/';
   return db.getFromIndex('bookmarks', 'by-url', alt);
 }
@@ -67,20 +68,28 @@ export async function saveBookmark(bookmark: Omit<Bookmark, 'id' | 'createdAt' |
   const db = await getDB();
   const now = Date.now();
   
-  // Clean tags: trim, remove empty, deduplicate
   const cleanTags = Array.from(new Set(
     (bookmark.tags || [])
       .map(t => t.trim().toLowerCase())
-      .filter(t => t.length > 0)
+      .filter(Boolean)
   ));
 
+  const cleanImages = Array.from(new Set(
+    (bookmark.images || [])
+      .map(img => img.trim())
+      .filter(Boolean)
+  ));
+
+  const normUrl = normalizeUrl(bookmark.url);
   const finalBookmark: Bookmark = {
     id: bookmark.id || generateId(),
-    url: normalizeUrl(bookmark.url),
-    title: (bookmark.title || '').trim() || normalizeUrl(bookmark.url),
+    url: normUrl,
+    title: (bookmark.title || '').trim() || (normUrl ? normUrl : '无标题便签'),
     description: (bookmark.description || '').trim(),
     notes: bookmark.notes || '',
+    images: cleanImages,
     tags: cleanTags,
+    pinned: !!bookmark.pinned,
     unread: !!bookmark.unread,
     archived: !!bookmark.archived,
     createdAt: bookmark.createdAt || now,
@@ -99,8 +108,13 @@ export async function deleteBookmark(id: string): Promise<void> {
 export async function getAllBookmarks(): Promise<Bookmark[]> {
   const db = await getDB();
   const all = await db.getAll('bookmarks');
-  // default sort by createdAt desc
-  return all.sort((a, b) => b.createdAt - a.createdAt);
+  // Pinned items first, then by createdAt desc
+  return all.sort((a, b) => {
+    if (a.pinned !== b.pinned) {
+      return a.pinned ? -1 : 1;
+    }
+    return b.createdAt - a.createdAt;
+  });
 }
 
 export async function getTagStats(): Promise<TagStats[]> {
@@ -108,7 +122,7 @@ export async function getTagStats(): Promise<TagStats[]> {
   const counts = new Map<string, number>();
 
   for (const bm of bookmarks) {
-    if (bm.archived) continue; // count active bookmark tags
+    if (bm.archived) continue;
     for (const tag of bm.tags) {
       counts.set(tag, (counts.get(tag) || 0) + 1);
     }
@@ -120,6 +134,16 @@ export async function getTagStats(): Promise<TagStats[]> {
   });
 
   return result.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+export async function togglePinned(id: string): Promise<Bookmark | undefined> {
+  const db = await getDB();
+  const bm = await db.get('bookmarks', id);
+  if (!bm) return undefined;
+  bm.pinned = !bm.pinned;
+  bm.updatedAt = Date.now();
+  await db.put('bookmarks', bm);
+  return bm;
 }
 
 export async function toggleUnread(id: string): Promise<Bookmark | undefined> {
@@ -149,7 +173,7 @@ export interface BulkImportResult {
 }
 
 export async function bulkImportBookmarks(
-  items: Array<Partial<Bookmark> & { url: string; title?: string }>,
+  items: Array<Partial<Bookmark> & { url?: string; title?: string }>,
   overwriteDuplicates: boolean = false
 ): Promise<BulkImportResult> {
   const db = await getDB();
@@ -162,13 +186,8 @@ export async function bulkImportBookmarks(
   const urlIndex = store.index('by-url');
 
   for (const item of items) {
-    if (!item.url) {
-      skipped++;
-      continue;
-    }
-
-    const normUrl = normalizeUrl(item.url);
-    const existing = await urlIndex.get(normUrl);
+    const normUrl = item.url ? normalizeUrl(item.url) : '';
+    const existing = normUrl ? await urlIndex.get(normUrl) : null;
 
     if (existing) {
       if (overwriteDuplicates) {
@@ -177,11 +196,17 @@ export async function bulkImportBookmarks(
           ...(item.tags || []).map(t => t.trim().toLowerCase()).filter(Boolean)
         ]));
 
+        const mergedImages = Array.from(new Set([
+          ...(existing.images || []),
+          ...(item.images || []).filter(Boolean)
+        ]));
+
         const updatedBm: Bookmark = {
           ...existing,
           title: item.title?.trim() || existing.title,
           description: item.description?.trim() ?? existing.description,
-          notes: item.notes ?? existing.notes,
+          notes: item.notes ? `${existing.notes}\n\n${item.notes}` : existing.notes,
+          images: mergedImages,
           tags: mergedTags,
           unread: item.unread !== undefined ? item.unread : existing.unread,
           archived: item.archived !== undefined ? item.archived : existing.archived,
@@ -194,17 +219,20 @@ export async function bulkImportBookmarks(
       }
     } else {
       const cleanTags = Array.from(new Set(
-        (item.tags || [])
-          .map(t => t.trim().toLowerCase())
-          .filter(Boolean)
+        (item.tags || []).map(t => t.trim().toLowerCase()).filter(Boolean)
+      ));
+      const cleanImages = Array.from(new Set(
+        (item.images || []).filter(Boolean)
       ));
       const newBm: Bookmark = {
         id: item.id || generateId(),
         url: normUrl,
-        title: (item.title || normUrl).trim(),
+        title: (item.title || normUrl || '无标题便签').trim(),
         description: (item.description || '').trim(),
         notes: item.notes || '',
+        images: cleanImages,
         tags: cleanTags,
+        pinned: !!item.pinned,
         unread: !!item.unread,
         archived: !!item.archived,
         createdAt: item.createdAt || Date.now(),

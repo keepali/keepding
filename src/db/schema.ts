@@ -4,7 +4,9 @@ export interface Bookmark {
   title: string;
   description: string;
   notes: string;
+  images?: string[];
   tags: string[];
+  pinned?: boolean;
   unread: boolean;
   archived: boolean;
   createdAt: number;
@@ -16,7 +18,7 @@ export interface TagStats {
   count: number;
 }
 
-export type BookmarkFilter = 'all' | 'unread' | 'archived';
+export type BookmarkFilter = 'all' | 'notes' | 'images' | 'unread' | 'archived';
 
 export interface SearchQuery {
   text?: string;

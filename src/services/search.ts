@@ -5,6 +5,8 @@ export interface ParsedQuery {
   tags: string[];
   unreadOnly: boolean;
   archivedOnly: boolean;
+  notesOnly: boolean;
+  imagesOnly: boolean;
   site?: string;
 }
 
@@ -13,6 +15,8 @@ export function parseSearchQuery(queryStr: string): ParsedQuery {
   const tags: string[] = [];
   let unreadOnly = false;
   let archivedOnly = false;
+  let notesOnly = false;
+  let imagesOnly = false;
   let site: string | undefined = undefined;
 
   const rawTokens = queryStr.trim().split(/\s+/).filter(Boolean);
@@ -25,6 +29,10 @@ export function parseSearchQuery(queryStr: string): ParsedQuery {
       unreadOnly = true;
     } else if (token.toLowerCase() === '!archived') {
       archivedOnly = true;
+    } else if (token.toLowerCase() === '!note' || token.toLowerCase() === '!notes') {
+      notesOnly = true;
+    } else if (token.toLowerCase() === '!image' || token.toLowerCase() === '!images') {
+      imagesOnly = true;
     } else if (token.toLowerCase().startsWith('site:')) {
       site = token.slice(5).toLowerCase().trim();
     } else {
@@ -32,7 +40,7 @@ export function parseSearchQuery(queryStr: string): ParsedQuery {
     }
   }
 
-  return { terms, tags, unreadOnly, archivedOnly, site };
+  return { terms, tags, unreadOnly, archivedOnly, notesOnly, imagesOnly, site };
 }
 
 export function filterBookmarks(
@@ -46,17 +54,22 @@ export function filterBookmarks(
   const allTagsToMatch = Array.from(new Set([...parsed.tags, ...selectedTags.map(t => t.toLowerCase())]));
 
   let filtered = bookmarks.filter(bm => {
-    // 1. Base filter
+    // 1. Filter checks
     if (parsed.unreadOnly || activeFilter === 'unread') {
       if (!bm.unread || bm.archived) return false;
     } else if (parsed.archivedOnly || activeFilter === 'archived') {
       if (!bm.archived) return false;
+    } else if (parsed.notesOnly || activeFilter === 'notes') {
+      if (bm.archived || !bm.notes || bm.notes.trim().length === 0) return false;
+    } else if (parsed.imagesOnly || activeFilter === 'images') {
+      const hasImages = (bm.images && bm.images.length > 0) || (bm.notes && bm.notes.includes('!['));
+      if (bm.archived || !hasImages) return false;
     } else {
-      // 'all' view: show active (non-archived) by default unless query asks for !archived
+      // 'all' view
       if (bm.archived && !parsed.archivedOnly) return false;
     }
 
-    // 2. Tag filter (AND match for all required tags)
+    // 2. Tag filter
     if (allTagsToMatch.length > 0) {
       const bmTags = bm.tags.map(t => t.toLowerCase());
       const hasAllTags = allTagsToMatch.every(reqTag => bmTags.includes(reqTag));
@@ -64,7 +77,7 @@ export function filterBookmarks(
     }
 
     // 3. Site filter
-    if (parsed.site) {
+    if (parsed.site && bm.url) {
       try {
         const host = new URL(bm.url).hostname.toLowerCase();
         if (!host.includes(parsed.site)) return false;
@@ -73,7 +86,7 @@ export function filterBookmarks(
       }
     }
 
-    // 4. Text match across title, description, notes, and url
+    // 4. Text match
     if (parsed.terms.length > 0) {
       const textToSearch = [
         bm.title,
@@ -90,15 +103,17 @@ export function filterBookmarks(
     return true;
   });
 
-  // Sort
   return filtered.sort((a, b) => {
+    // Pinned always on top
+    if (a.pinned !== b.pinned) {
+      return a.pinned ? -1 : 1;
+    }
     if (sortOrder === 'date_asc') {
       return a.createdAt - b.createdAt;
     }
     if (sortOrder === 'title_asc') {
       return (a.title || a.url).localeCompare(b.title || b.url);
     }
-    // Default: date_desc
     return b.createdAt - a.createdAt;
   });
 }

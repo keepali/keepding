@@ -30,7 +30,7 @@
             type="text"
             id="search-input"
             class="w-full pl-8 pr-14 py-1.5 text-xs bg-zinc-100/80 border border-transparent rounded-lg placeholder:text-zinc-400 focus:outline-none focus:bg-white focus:border-zinc-300 focus:ring-2 focus:ring-zinc-100 transition-all"
-            placeholder="搜索书签、笔记、#标签..."
+            placeholder="搜索便签、笔记、网址、#标签..."
           >
           <div class="absolute right-2 flex items-center gap-1">
             <button id="btn-clear-search" class="hidden text-zinc-400 hover:text-zinc-600 p-0.5">
@@ -44,18 +44,8 @@
       <!-- Actions -->
       <div class="flex items-center gap-2 shrink-0">
         <button
-          id="btn-open-add-modal"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 active:scale-98 rounded-lg shadow-xs transition-all"
-        >
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-          </svg>
-          <span>新建</span>
-        </button>
-
-        <button
           id="btn-open-io-modal"
-          title="数据导入与导出"
+          title="导入与导出"
           class="p-1.5 text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 rounded-lg transition-colors border border-zinc-200/80"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
@@ -66,19 +56,39 @@
     </div>
   </header>
 
-  <!-- Content Workspace -->
+  <!-- Workspace -->
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 w-full flex-1 flex gap-8">
     <!-- Sidebar -->
-    <aside class="w-52 shrink-0 hidden md:flex flex-col gap-6">
+    <aside class="w-48 shrink-0 hidden md:flex flex-col gap-6">
       <nav class="flex flex-col gap-0.5 text-xs font-medium">
         <button data-filter="all" class="sidebar-nav-item active flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-zinc-200/60 text-zinc-900 transition-colors">
           <div class="flex items-center gap-2">
             <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
             </svg>
-            <span>全部</span>
+            <span>全部卡片</span>
           </div>
           <span id="count-all" class="text-[11px] text-zinc-500 font-mono">0</span>
+        </button>
+
+        <button data-filter="notes" class="sidebar-nav-item flex items-center justify-between px-2.5 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">
+          <div class="flex items-center gap-2">
+            <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span>笔记与摘录</span>
+          </div>
+          <span id="count-notes" class="text-[11px] text-zinc-400 font-mono">0</span>
+        </button>
+
+        <button data-filter="images" class="sidebar-nav-item flex items-center justify-between px-2.5 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">
+          <div class="flex items-center gap-2">
+            <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>图片收藏</span>
+          </div>
+          <span id="count-images" class="text-[11px] text-zinc-400 font-mono">0</span>
         </button>
 
         <button data-filter="unread" class="sidebar-nav-item flex items-center justify-between px-2.5 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">
@@ -102,51 +112,106 @@
         </button>
       </nav>
 
-      <!-- Tags list -->
+      <!-- Tags -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between px-1">
           <span class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">标签</span>
           <button id="btn-clear-tags" class="hidden text-[11px] text-zinc-400 hover:text-zinc-700">清除</button>
         </div>
-        <div id="tags-list" class="flex flex-col gap-0.5 max-h-[calc(100vh-280px)] overflow-y-auto pr-1"></div>
+        <div id="tags-list" class="flex flex-col gap-0.5 max-h-[calc(100vh-320px)] overflow-y-auto pr-1"></div>
       </div>
     </aside>
 
-    <!-- Main List Area -->
-    <main class="flex-1 min-w-0 flex flex-col">
-      <!-- Section Bar -->
-      <div class="flex items-center justify-between pb-3 mb-4 border-b border-zinc-200/80">
+    <!-- Main Cards Flow -->
+    <main class="flex-1 min-w-0 flex flex-col gap-4">
+      <!-- Google Keep / Memos style Quick Input Box -->
+      <div class="bg-white rounded-xl border border-zinc-200/80 shadow-2xs p-3 transition-all focus-within:border-zinc-400 focus-within:shadow-xs" id="quick-compose">
+        <div id="compose-collapsed" class="flex items-center gap-2 cursor-text text-zinc-400 text-xs py-1 px-1">
+          <svg class="w-4 h-4 text-zinc-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>记录便签、想法，或粘贴链接/图片...</span>
+        </div>
+
+        <form id="compose-form" class="hidden flex flex-col gap-2.5 pt-1">
+          <textarea
+            id="quick-notes"
+            rows="3"
+            placeholder="写下笔记、摘录（支持 Markdown、图片语法 ![](url)...）"
+            class="w-full text-xs text-zinc-900 placeholder:text-zinc-400 focus:outline-none resize-none font-mono"
+          ></textarea>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-zinc-100">
+            <input
+              type="text"
+              id="quick-title"
+              placeholder="标题 (选填)"
+              class="px-2.5 py-1 text-xs text-zinc-800 bg-zinc-50 border border-zinc-200 rounded-md focus:bg-white focus:outline-none focus:border-zinc-300"
+            >
+            <input
+              type="url"
+              id="quick-url"
+              placeholder="来源网址 https:// (选填)"
+              class="px-2.5 py-1 text-xs text-zinc-800 bg-zinc-50 border border-zinc-200 rounded-md focus:bg-white focus:outline-none focus:border-zinc-300 font-mono"
+            >
+          </div>
+
+          <div class="flex items-center justify-between pt-1 text-xs">
+            <input
+              type="text"
+              id="quick-tags"
+              placeholder="标签 (空格分隔)"
+              class="flex-1 max-w-xs px-2 py-0.5 text-xs text-zinc-700 bg-transparent focus:outline-none"
+            >
+
+            <div class="flex items-center gap-2">
+              <button type="button" id="btn-cancel-compose" class="px-2.5 py-1 text-xs text-zinc-500 hover:text-zinc-800 transition-colors">取消</button>
+              <button type="submit" class="px-3.5 py-1 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg shadow-xs transition-all">保存</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Section Header -->
+      <div class="flex items-center justify-between pb-1">
         <div class="flex items-center gap-2">
-          <h1 id="view-title" class="text-sm font-semibold text-zinc-900">全部</h1>
-          <span id="view-count" class="text-xs text-zinc-400 font-mono">0</span>
+          <h1 id="view-title" class="text-xs font-semibold uppercase tracking-wider text-zinc-400">全部</h1>
+          <span id="view-count" class="text-[11px] text-zinc-400 font-mono">0</span>
         </div>
 
         <div id="active-tag-pills" class="flex flex-wrap gap-1 items-center"></div>
 
-        <div class="flex items-center gap-1.5">
-          <select id="sort-select" class="text-xs text-zinc-600 bg-transparent border-0 py-1 pl-1 pr-6 focus:ring-0 focus:outline-none cursor-pointer">
-            <option value="date_desc">按时间倒序</option>
-            <option value="date_asc">按时间正序</option>
-            <option value="title_asc">按标题排序</option>
+        <div class="flex items-center gap-2 text-xs">
+          <!-- View layout switch: 2 columns vs 1 column -->
+          <button id="btn-layout-toggle" title="切换排版视图" class="p-1 text-zinc-400 hover:text-zinc-800 rounded-md">
+            <svg id="icon-layout-grid" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <select id="sort-select" class="text-xs text-zinc-600 bg-transparent border-0 py-0.5 pl-1 pr-6 focus:ring-0 focus:outline-none cursor-pointer">
+            <option value="date_desc">最新更新</option>
+            <option value="date_asc">最早添加</option>
+            <option value="title_asc">标题排序</option>
           </select>
         </div>
       </div>
 
-      <!-- Bookmarks List -->
-      <div id="bookmarks-container" class="flex flex-col gap-2.5"></div>
+      <!-- Bookmarks / Memos Cards Stream -->
+      <div id="bookmarks-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 items-start"></div>
 
       <!-- Empty State -->
       <div id="empty-state" class="hidden text-center py-20">
-        <p class="text-xs text-zinc-400 font-medium">暂无书签</p>
+        <p class="text-xs text-zinc-400 font-medium">暂无内容</p>
       </div>
     </main>
   </div>
 
-  <!-- Add / Edit Modal -->
+  <!-- Edit Modal -->
   <div id="bookmark-modal" class="fixed inset-0 z-50 hidden bg-black/20 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-xl border border-zinc-200/80 max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-100">
       <div class="flex items-center justify-between px-5 py-3.5 border-b border-zinc-100">
-        <h2 id="modal-title" class="text-xs font-semibold text-zinc-900">编辑书签</h2>
+        <h2 id="modal-title" class="text-xs font-semibold text-zinc-900">编辑</h2>
         <button id="btn-close-modal" class="text-zinc-400 hover:text-zinc-700 p-1">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
@@ -156,36 +221,41 @@
         <input type="hidden" id="modal-id">
 
         <div>
-          <label class="block text-[11px] font-medium text-zinc-500 mb-1" for="modal-bm-title">标题</label>
-          <input type="text" id="modal-bm-title" required class="w-full px-3 py-1.5 text-xs text-zinc-900 border border-zinc-200 rounded-lg focus:border-zinc-400 focus:outline-none transition-colors">
-        </div>
-
-        <div>
-          <label class="block text-[11px] font-medium text-zinc-500 mb-1" for="modal-url">网址</label>
-          <input type="url" id="modal-url" required class="w-full px-3 py-1.5 text-xs text-zinc-900 border border-zinc-200 rounded-lg focus:border-zinc-400 focus:outline-none transition-colors font-mono">
-        </div>
-
-        <div>
+          <label class="block text-[11px] font-medium text-zinc-500 mb-1" for="modal-notes">笔记正文 (Markdown)</label>
           <div class="flex items-center justify-between mb-1">
-            <label class="text-[11px] font-medium text-zinc-500" for="modal-notes">笔记 (Markdown)</label>
+            <span class="text-[10px] text-zinc-400">支持文字、引用、代码块与图片</span>
             <button type="button" id="modal-toggle-preview" class="text-[11px] text-zinc-400 hover:text-zinc-700">预览</button>
           </div>
           <div id="modal-notes-edit">
-            <textarea id="modal-notes" rows="4" class="w-full px-3 py-2 text-xs font-mono text-zinc-900 border border-zinc-200 rounded-lg focus:border-zinc-400 focus:outline-none resize-none transition-colors" placeholder="支持 Markdown..."></textarea>
+            <textarea id="modal-notes" rows="5" class="w-full px-3 py-2 text-xs font-mono text-zinc-900 border border-zinc-200 rounded-lg focus:border-zinc-400 focus:outline-none resize-none transition-colors" placeholder="输入笔记或便签..."></textarea>
           </div>
-          <div id="modal-notes-preview" class="hidden p-3 max-h-48 overflow-y-auto bg-zinc-50 border border-zinc-200 rounded-lg text-xs markdown-body"></div>
+          <div id="modal-notes-preview" class="hidden p-3 max-h-56 overflow-y-auto bg-zinc-50 border border-zinc-200 rounded-lg text-xs markdown-body"></div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-medium text-zinc-500 mb-1" for="modal-bm-title">标题 (选填)</label>
+          <input type="text" id="modal-bm-title" class="w-full px-3 py-1.5 text-xs text-zinc-900 border border-zinc-200 rounded-lg focus:border-zinc-400 focus:outline-none transition-colors">
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-medium text-zinc-500 mb-1" for="modal-url">来源网址 (选填)</label>
+          <input type="url" id="modal-url" class="w-full px-3 py-1.5 text-xs text-zinc-900 border border-zinc-200 rounded-lg focus:border-zinc-400 focus:outline-none transition-colors font-mono">
         </div>
 
         <div>
           <label class="block text-[11px] font-medium text-zinc-500 mb-1" for="modal-tags">标签</label>
-          <input type="text" id="modal-tags" class="w-full px-3 py-1.5 text-xs text-zinc-900 border border-zinc-200 rounded-lg focus:border-zinc-400 focus:outline-none transition-colors" placeholder="标签用空格或逗号分隔">
+          <input type="text" id="modal-tags" class="w-full px-3 py-1.5 text-xs text-zinc-900 border border-zinc-200 rounded-lg focus:border-zinc-400 focus:outline-none transition-colors" placeholder="空格或逗号分隔">
           <div id="modal-tag-suggestions" class="flex flex-wrap gap-1 mt-1.5"></div>
         </div>
 
         <div class="flex items-center gap-5 pt-1 text-xs text-zinc-600">
           <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="modal-pinned" class="rounded border-zinc-300 text-zinc-900 focus:ring-0 w-3.5 h-3.5 accent-zinc-900">
+            <span>置顶</span>
+          </label>
+          <label class="flex items-center gap-1.5 cursor-pointer">
             <input type="checkbox" id="modal-unread" class="rounded border-zinc-300 text-zinc-900 focus:ring-0 w-3.5 h-3.5 accent-zinc-900">
-            <span>稍后阅读</span>
+            <span>稍后读</span>
           </label>
           <label class="flex items-center gap-1.5 cursor-pointer">
             <input type="checkbox" id="modal-archived" class="rounded border-zinc-300 text-zinc-900 focus:ring-0 w-3.5 h-3.5 accent-zinc-900">
@@ -212,13 +282,12 @@
       </div>
 
       <div class="p-5 flex flex-col gap-5">
-        <!-- Export -->
         <div class="space-y-2">
           <div class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">导出备份</div>
           <div class="grid grid-cols-2 gap-2">
             <button id="btn-export-json" class="p-2.5 text-left border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 rounded-lg transition-colors">
               <div class="text-xs font-medium text-zinc-900">JSON 备份</div>
-              <div class="text-[10px] text-zinc-400 mt-0.5">完整笔记与元数据</div>
+              <div class="text-[10px] text-zinc-400 mt-0.5">完整便签、笔记与图片</div>
             </button>
             <button id="btn-export-html" class="p-2.5 text-left border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 rounded-lg transition-colors">
               <div class="text-xs font-medium text-zinc-900">HTML 书签</div>
@@ -227,9 +296,8 @@
           </div>
         </div>
 
-        <!-- Import -->
         <div class="space-y-2">
-          <div class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">导入书签</div>
+          <div class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">导入数据</div>
           <label class="flex items-center gap-1.5 text-xs text-zinc-600 mb-2 cursor-pointer">
             <input type="checkbox" id="import-overwrite" class="rounded border-zinc-300 text-zinc-900 focus:ring-0 w-3.5 h-3.5 accent-zinc-900">
             <span>覆盖已存在相同网址的数据</span>
@@ -241,7 +309,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
             <div class="text-xs font-medium text-zinc-700">选择文件或拖入此处</div>
-            <div class="text-[10px] text-zinc-400 mt-0.5">支持 .json 或 .html 书签</div>
+            <div class="text-[10px] text-zinc-400 mt-0.5">支持 .json 或 .html</div>
           </div>
           <div id="import-result" class="hidden text-xs p-2.5 rounded-lg"></div>
         </div>
@@ -249,7 +317,7 @@
     </div>
   </div>
 
-  <!-- Minimal Toast -->
+  <!-- Toast -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 hidden px-3 py-1.5 rounded-lg shadow-md text-xs font-medium text-white bg-zinc-900 transition-all"></div>
 
   <script type="module" src="./manager.ts"></script>

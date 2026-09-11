@@ -1,6 +1,6 @@
 # Pinscribe
 
-A fast, offline-first bookmark manager with Markdown notes for Google Chrome.
+A fast, offline-first personal library and memo board for Google Chrome. Inspired by the clarity of Linkding and the visual flow of Memos & Google Keep.
 
 [![Chrome Manifest V3](https://img.shields.io/badge/Manifest-V3-18181b.svg?style=flat-square)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-18181b.svg?style=flat-square)](LICENSE)
@@ -9,14 +9,18 @@ A fast, offline-first bookmark manager with Markdown notes for Google Chrome.
 
 ## Features
 
-- **Offline & Private**: All data is stored locally in your browser via IndexedDB. Zero network requests, zero external analytics.
-- **Save Selection (Google Keep style)**:
-  - **Right-click menu**: Select any text on a webpage, right-click, and select *"保存选中内容到笔记"* to immediately save or append the quote to the page bookmark.
-  - **Popup auto-capture**: When text is selected on the page, opening the popup (`Cmd+Shift+L`) automatically extracts the text and formats it as a Markdown quote in your notes.
-- **Quick Bookmark**: Press `Cmd+Shift+L` (or `Ctrl+Shift+L`) to save the active tab. Auto-populates title and URL, supports Markdown notes with live preview, and tag suggestions.
-- **Library Dashboard**: Clean desktop-grade manager with unread queue, archive, and tag cloud.
-- **Instant Search**: Full-text search across titles, URLs, tags, and Markdown notes. Supports query syntax (`#tag`, `!unread`, `!archived`, `site:domain`).
-- **Import & Export**: Standard Netscape HTML bookmarks (compatible with Chrome, Firefox, Safari, Pocket, Raindrop) and lossless JSON backups.
+- **Offline & Local-First**: All bookmarks, notes, images, and clips are stored securely in browser IndexedDB. Zero cloud tracking, zero network dependencies.
+- **Memos & Keep Card Flow**:
+  - Notes are displayed directly on cards (not hidden behind dropdowns).
+  - Rich Markdown formatting with blockquotes, code blocks, checklists, and images.
+  - Quick note creation bar at the top of the dashboard for capturing thoughts on the fly.
+  - Pin important cards (`📌`) to the top of your stream.
+- **Multi-Modal Web Capture**:
+  - **Links**: Save webpage or right-click any link to bookmark.
+  - **Text Clips**: Highlight text on any page, right-click *"收藏选中文本到笔记"*, or open the popup to auto-capture quotes.
+  - **Images**: Right-click any image on the web and choose *"收藏图片到笔记"* to save the visual clip directly to your collection.
+- **Fast Search & Syntax**: Real-time filtering across notes, titles, URLs, and tags. Supports `#tag`, `!unread`, `!note`, `!image`, and `site:domain`.
+- **Lossless Import & Export**: Full JSON backups and standard Netscape HTML bookmarks (compatible with Chrome, Firefox, Safari, Pocket, Raindrop).
 
 ---
 
@@ -24,7 +28,7 @@ A fast, offline-first bookmark manager with Markdown notes for Google Chrome.
 
 ### From Source
 
-1. Clone or download the repository:
+1. Clone the repository:
    ```bash
    git clone git@github.com:keepali/pinscribe.git
    cd pinscribe
@@ -37,9 +41,9 @@ A fast, offline-first bookmark manager with Markdown notes for Google Chrome.
    ```
 
 3. Load the extension in Chrome:
-   - Open `chrome://extensions` in your browser.
+   - Go to `chrome://extensions`.
    - Enable **Developer mode** in the top right.
-   - Click **Load unpacked** and select the `dist/` directory inside this project.
+   - Click **Load unpacked** and select the `dist/` directory.
 
 ---
 
@@ -48,8 +52,8 @@ A fast, offline-first bookmark manager with Markdown notes for Google Chrome.
 | Shortcut | Action |
 | :--- | :--- |
 | `Cmd+Shift+L` / `Ctrl+Shift+L` | Open quick bookmark popup |
-| `Cmd+Shift+O` / `Ctrl+Shift+O` | Open library manager |
-| `Cmd+S` / `Ctrl+S` | Save bookmark (inside popup) |
+| `Cmd+Shift+O` / `Ctrl+Shift+O` | Open library memo board |
+| `Cmd+S` / `Ctrl+S` | Save in popup |
 | `/` or `Cmd+K` | Focus search bar (in library) |
 | `Esc` | Close modal or clear search |
 
@@ -58,10 +62,10 @@ A fast, offline-first bookmark manager with Markdown notes for Google Chrome.
 ## Development
 
 ```bash
-# Start Vite watch mode
+# Watch mode
 npm run dev
 
-# Run test suite
+# Tests
 npm test
 
 # Build production bundle and Chrome Web Store zip
