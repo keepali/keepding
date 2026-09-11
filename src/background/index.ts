@@ -1,39 +1,81 @@
 import { getBookmarkByUrl, saveBookmark } from '../db';
 
 chrome.runtime.onInstalled.addListener(() => {
-  // Context menus
+  // Context menu for page
   chrome.contextMenus.create({
     id: 'pinscribe-save-page',
-    title: '收藏此网页到 Pinscribe',
+    title: '收藏此网页',
     contexts: ['page']
+  });
+
+  // Context menu for selected text (similar to Google Keep "Save to Keep")
+  chrome.contextMenus.create({
+    id: 'pinscribe-save-selection',
+    title: '保存选中内容到笔记',
+    contexts: ['selection']
   });
 
   chrome.contextMenus.create({
     id: 'pinscribe-open-manager',
-    title: '打开 Pinscribe 书签管理面板',
+    title: '打开书签管理面板',
     contexts: ['action']
   });
 });
 
+function flashBadge(tabId: number, text: string = '✓') {
+  chrome.action.setBadgeText({ text, tabId });
+  chrome.action.setBadgeBackgroundColor({ color: '#18181b', tabId });
+  setTimeout(() => {
+    chrome.action.setBadgeText({ text: '', tabId });
+  }, 2200);
+}
+
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId === 'pinscribe-save-page' && tab && tab.url) {
-    await saveBookmark({
-      url: tab.url,
-      title: tab.title || tab.url,
-      description: '',
-      notes: '',
-      tags: ['quick-save'],
-      unread: true,
-      archived: false
-    });
-    // Set brief badge notification
-    if (tab.id) {
-      chrome.action.setBadgeText({ text: 'OK', tabId: tab.id });
-      chrome.action.setBadgeBackgroundColor({ color: '#16a34a', tabId: tab.id });
-      setTimeout(() => {
-        if (tab.id) chrome.action.setBadgeText({ text: '', tabId: tab.id });
-      }, 2000);
+  if (!tab || !tab.url || !tab.id) return;
+
+  if (info.menuItemId === 'pinscribe-save-selection') {
+    const selectedText = (info.selectionText || '').trim();
+    if (!selectedText) return;
+
+    const quote = `> ${selectedText}`;
+    const existing = await getBookmarkByUrl(tab.url);
+
+    if (existing) {
+      const mergedNotes = existing.notes
+        ? `${existing.notes}\n\n${quote}`
+        : quote;
+
+      await saveBookmark({
+        ...existing,
+        notes: mergedNotes,
+      });
+    } else {
+      await saveBookmark({
+        url: tab.url,
+        title: tab.title || tab.url,
+        description: '',
+        notes: quote,
+        tags: [],
+        unread: true,
+        archived: false
+      });
     }
+
+    flashBadge(tab.id, '✓');
+  } else if (info.menuItemId === 'pinscribe-save-page') {
+    const existing = await getBookmarkByUrl(tab.url);
+    if (!existing) {
+      await saveBookmark({
+        url: tab.url,
+        title: tab.title || tab.url,
+        description: '',
+        notes: '',
+        tags: [],
+        unread: true,
+        archived: false
+      });
+    }
+    flashBadge(tab.id, '✓');
   } else if (info.menuItemId === 'pinscribe-open-manager') {
     chrome.tabs.create({ url: chrome.runtime.getURL('src/manager/index.html') });
   }
@@ -52,7 +94,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       const bm = await getBookmarkByUrl(tab.url);
       if (bm) {
         chrome.action.setBadgeText({ text: '★', tabId });
-        chrome.action.setBadgeBackgroundColor({ color: '#2563eb', tabId });
+        chrome.action.setBadgeBackgroundColor({ color: '#71717a', tabId });
       } else {
         chrome.action.setBadgeText({ text: '', tabId });
       }
@@ -69,7 +111,7 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
       const bm = await getBookmarkByUrl(tab.url);
       if (bm) {
         chrome.action.setBadgeText({ text: '★', tabId: tab.id });
-        chrome.action.setBadgeBackgroundColor({ color: '#2563eb', tabId: tab.id });
+        chrome.action.setBadgeBackgroundColor({ color: '#71717a', tabId: tab.id });
       } else {
         chrome.action.setBadgeText({ text: '', tabId: tab.id });
       }

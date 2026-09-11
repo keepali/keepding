@@ -101,6 +101,7 @@ async function init() {
     inputUrl.value = tab.url;
     inputTitle.value = tab.title || tab.url;
 
+    // Check if page already bookmarked
     const existing = await getBookmarkByUrl(tab.url);
     if (existing) {
       currentBookmark = existing;
@@ -113,12 +114,39 @@ async function init() {
       checkArchived.checked = existing.archived;
 
       statusPill.classList.remove('hidden');
+      statusPill.textContent = '已保存';
       btnDelete.classList.remove('hidden');
       btnSave.textContent = '更新';
 
       await renderTagSuggestions(existing.tags);
     } else {
       await renderTagSuggestions([]);
+    }
+
+    // Auto capture selected text from webpage (like Save to Keep)
+    if (tab.id && tab.url.startsWith('http')) {
+      try {
+        const [injection] = await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => window.getSelection()?.toString().trim() || ''
+        });
+        const selected = injection?.result;
+        if (selected) {
+          const quote = `> ${selected}`;
+          if (inputNotes.value) {
+            if (!inputNotes.value.includes(selected)) {
+              inputNotes.value = `${inputNotes.value}\n\n${quote}`;
+            }
+          } else {
+            inputNotes.value = quote;
+          }
+
+          statusPill.classList.remove('hidden');
+          statusPill.textContent = existing ? '已捕获选中文本' : '已填入选中文本';
+        }
+      } catch {
+        // Ignore pages where scripting is restricted
+      }
     }
 
     inputTitle.focus();

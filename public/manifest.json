@@ -30,7 +30,8 @@
     "unlimitedStorage",
     "activeTab",
     "tabs",
-    "contextMenus"
+    "contextMenus",
+    "scripting"
   ],
   "commands": {
     "_execute_action": {

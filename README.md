@@ -10,6 +10,9 @@ A fast, offline-first bookmark manager with Markdown notes for Google Chrome.
 ## Features
 
 - **Offline & Private**: All data is stored locally in your browser via IndexedDB. Zero network requests, zero external analytics.
+- **Save Selection (Google Keep style)**:
+  - **Right-click menu**: Select any text on a webpage, right-click, and select *"保存选中内容到笔记"* to immediately save or append the quote to the page bookmark.
+  - **Popup auto-capture**: When text is selected on the page, opening the popup (`Cmd+Shift+L`) automatically extracts the text and formats it as a Markdown quote in your notes.
 - **Quick Bookmark**: Press `Cmd+Shift+L` (or `Ctrl+Shift+L`) to save the active tab. Auto-populates title and URL, supports Markdown notes with live preview, and tag suggestions.
 - **Library Dashboard**: Clean desktop-grade manager with unread queue, archive, and tag cloud.
 - **Instant Search**: Full-text search across titles, URLs, tags, and Markdown notes. Supports query syntax (`#tag`, `!unread`, `!archived`, `site:domain`).
