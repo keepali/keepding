@@ -1,7 +1,7 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
 import { Bookmark, TagStats } from './schema';
 
-interface PinscribeDB extends DBSchema {
+interface KeepdingDB extends DBSchema {
   bookmarks: {
     key: string;
     value: Bookmark;
@@ -12,14 +12,14 @@ interface PinscribeDB extends DBSchema {
   };
 }
 
-const DB_NAME = 'pinscribe_db';
+const DB_NAME = 'keepding_db';
 const DB_VERSION = 1;
 
-let dbPromise: Promise<IDBPDatabase<PinscribeDB>> | null = null;
+let dbPromise: Promise<IDBPDatabase<KeepdingDB>> | null = null;
 
-export function getDB(): Promise<IDBPDatabase<PinscribeDB>> {
+export function getDB(): Promise<IDBPDatabase<KeepdingDB>> {
   if (!dbPromise) {
-    dbPromise = openDB<PinscribeDB>(DB_NAME, DB_VERSION, {
+    dbPromise = openDB<KeepdingDB>(DB_NAME, DB_VERSION, {
       upgrade(db) {
         if (!db.objectStoreNames.contains('bookmarks')) {
           const store = db.createObjectStore('bookmarks', { keyPath: 'id' });
@@ -33,7 +33,7 @@ export function getDB(): Promise<IDBPDatabase<PinscribeDB>> {
 }
 
 export function generateId(): string {
-  return 'pin_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 9);
+  return 'kd_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 9);
 }
 
 export function normalizeUrl(url: string): string {

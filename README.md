@@ -1,18 +1,17 @@
-# Pinscribe
+# Keepding
 
-A fast, offline-first personal library and memo board for Google Chrome. Inspired by the clarity of Linkding and the visual flow of Memos & Google Keep.
+A fast, offline-first personal library and memo board for Google Chrome. Inspired by the clarity of Linkding and the visual flow of Google Keep.
 
 [![Chrome Manifest V3](https://img.shields.io/badge/Manifest-V3-18181b.svg?style=flat-square)](https://developer.chrome.com/docs/extensions/mv3/intro/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-18181b.svg?style=flat-square)](LICENSE)
 
 ---
 
-## Features
+## Highlights
 
 - **Offline & Local-First**: All bookmarks, notes, images, and clips are stored securely in browser IndexedDB. Zero cloud tracking, zero network dependencies.
-- **Memos & Keep Card Flow**:
-  - Notes are displayed directly on cards (not hidden behind dropdowns).
-  - Rich Markdown formatting with blockquotes, code blocks, checklists, and images.
+- **Keep + Linkding Card Flow**:
+  - Notes are displayed directly on cards with Markdown formatting (blockquotes, code blocks, lists).
   - Quick note creation bar at the top of the dashboard for capturing thoughts on the fly.
   - Pin important cards (`📌`) to the top of your stream.
 - **Multi-Modal Web Capture**:
@@ -30,8 +29,8 @@ A fast, offline-first personal library and memo board for Google Chrome. Inspire
 
 1. Clone the repository:
    ```bash
-   git clone git@github.com:keepali/pinscribe.git
-   cd pinscribe
+   git clone git@github.com:keepali/keepding.git
+   cd keepding
    ```
 
 2. Install dependencies and build:

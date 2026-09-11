@@ -1,13 +1,13 @@
 {
-  "name": "pinscribe",
+  "name": "keepding",
   "version": "1.0.0",
-  "description": "A pure offline Chrome bookmark manager with Markdown notes, search, and import/export",
+  "description": "A fast, offline-first personal library and memo board for Chrome (inspired by Google Keep + Linkding)",
   "type": "module",
   "scripts": {
     "dev": "vite build --watch",
     "build": "tsc && vite build",
     "test": "tsx --test tests/services.test.ts",
-    "package": "npm run build && rm -f pinscribe-extension.zip && (cd dist && zip -r ../pinscribe-extension.zip . -x \"*.DS_Store\")"
+    "package": "npm run build && rm -f keepding-extension.zip && (cd dist && zip -r ../keepding-extension.zip . -x \"*.DS_Store\")"
   },
   "dependencies": {
     "idb": "^8.0.2",

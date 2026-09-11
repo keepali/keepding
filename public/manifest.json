@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Pinscribe - 纯离线书签与笔记",
+  "name": "Keepding - 纯离线便签与书签",
   "version": "1.0.0",
-  "description": "纯离线个人书签管理与 Markdown 笔记助手，支持即时搜索、稍后阅读与导入导出",
+  "description": "纯离线便签与书签管理助手（灵感源自 Google Keep + Linkding），支持即时摘录、图片与 Markdown 笔记",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -10,7 +10,7 @@
   },
   "action": {
     "default_popup": "src/popup/index.html",
-    "default_title": "Pinscribe 快速收藏",
+    "default_title": "Keepding 快速收藏",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",
@@ -39,14 +39,14 @@
         "default": "Ctrl+Shift+L",
         "mac": "Command+Shift+L"
       },
-      "description": "快捷打开 Pinscribe 收藏弹窗"
+      "description": "快捷打开 Keepding 收藏弹窗"
     },
     "open-manager": {
       "suggested_key": {
         "default": "Ctrl+Shift+O",
         "mac": "Command+Shift+O"
       },
-      "description": "打开 Pinscribe 书签管理面板"
+      "description": "打开 Keepding 管理面板"
     }
   }
 }
