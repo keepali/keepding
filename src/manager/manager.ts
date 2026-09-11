@@ -519,7 +519,7 @@ btnExportJson.addEventListener('click', async () => {
   const all = await getAllBookmarks();
   const jsonContent = exportToJSON(all);
   const dateStr = new Date().toISOString().slice(0, 10);
-  downloadFile(jsonContent, `linkding-backup-${dateStr}.json`, 'application/json');
+  downloadFile(jsonContent, `pinscribe-backup-${dateStr}.json`, 'application/json');
   showToast('已导出 JSON 格式备份！');
 });
 
@@ -528,7 +528,7 @@ btnExportHtml.addEventListener('click', async () => {
   const all = await getAllBookmarks();
   const htmlContent = exportToNetscapeHTML(all);
   const dateStr = new Date().toISOString().slice(0, 10);
-  downloadFile(htmlContent, `linkding-bookmarks-${dateStr}.html`, 'text/html');
+  downloadFile(htmlContent, `pinscribe-bookmarks-${dateStr}.html`, 'text/html');
   showToast('已导出 Netscape HTML 书签文件！');
 });
 

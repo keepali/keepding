@@ -1,6 +1,6 @@
-# Linkding Offline (纯离线书签助手)
+# Pinscribe (纯离线书签与笔记助手)
 
-一个类似 **linkding** 的纯离线 Chrome 浏览器书签管理与笔记扩展（Manifest V3），注重隐私、极致速度与离线可用性。
+**Pinscribe** 是一个现代化、纯离线的 Chrome 浏览器个人书签与笔记管理扩展（Manifest V3），注重隐私、极致速度与离线可用性。
 
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Manifest](https://img.shields.io/badge/Chrome-Manifest%20V3-blue.svg)
@@ -19,7 +19,7 @@
   - 支持“稍后阅读 (Unread / Read Later)”标记。
   - 自动识别当前页面是否已收藏，若已存在自动回显并切换为“更新/删除”模式。
 - **🖥️ 全功能管理面板 (Manager Dashboard)**：
-  - 类似 linkding 的清爽现代双栏布局。
+  - 清爽现代的双栏极简布局。
   - **分类过滤**：全部书签、稍后阅读（待读列表）、归档箱。
   - **标签聚合**：按使用频次与字母排序的侧边栏标签云，支持多标签复合筛选。
   - **卡片式列表**：一键展开/折叠查看 Markdown 格式的完整笔记、一键切换已读状态、复制网址、归档、编辑与删除。
@@ -33,7 +33,7 @@
   - 快捷键 `/` 快速聚焦搜索栏。
 - **📦 导入与导出 (Import & Export)**：
   - **全量 JSON 备份**：完整备份所有书签、Markdown 笔记、标签及时间戳，可随时完整还原。
-  - **标准 Netscape HTML 书签**：支持与 Chrome / Firefox / Edge / Safari / Pocket / Raindrop 以及原始 linkding 服务无缝互导。
+  - **标准 Netscape HTML 书签**：支持与 Chrome / Firefox / Edge / Safari / Pocket / Raindrop 无缝互导。
   - **智能导入合并**：导入时支持“跳过已有项”或“覆盖更新已有项”。
 
 ---
@@ -42,21 +42,21 @@
 
 ### 1. 编译构建
 ```bash
-# 1. 进入项目目录
-cd ~/Documents/offline-linkding
+# 进入项目目录
+cd ~/Documents/pinscribe
 
-# 2. 安装依赖（已由 pnpm 或 npm 安装）
+# 安装依赖
 pnpm install
 
-# 3. 编译打包生成 dist 目录
+# 编译打包生成 dist 目录
 npm run build
 ```
 
 ### 2. 在 Chrome 中加载插件
-1. 打开 Chrome 浏览器，在地址栏输入：`chrome://extensions` 并回车。
-2. 在右上角开启 **“开发者模式” (Developer mode)** 开关。
-3. 点击左上角的 **“加载已解压的扩展程序” (Load unpacked)**。
-4. 选择本项目中的 `dist` 目录：`/home/qing/Documents/offline-linkding/dist`。
+1. 打开 Chrome 浏览器，在地址栏输入：`chrome://extensions` 并回车；
+2. 在右上角开启 **“开发者模式” (Developer mode)** 开关；
+3. 点击左上角的 **“加载已解压的扩展程序” (Load unpacked)**；
+4. 选择目录：`/home/qing/Documents/pinscribe/dist`；
 5. 插件加载完成！你可以在 Chrome 工具栏中将它固定显示。
 
 ### 3. 日常使用
@@ -65,16 +65,10 @@ npm run build
 
 ---
 
-## 🛠️ 项目技术栈与结构
-
-- **Manifest V3**：符合 Chrome 扩展最新安全规范。
-- **Vite 6 + TypeScript**：类型安全与毫秒级构建。
-- **Tailwind CSS**：极简、现代的设计风格。
-- **IndexedDB (`idb`)**：高容量离线结构化存储与索引支持。
-- **Marked**：纯静态无外部依赖的轻量 Markdown 渲染器。
+## 🛠️ 项目结构
 
 ```
-offline-linkding/
+pinscribe/
 ├── public/
 │   ├── manifest.json         # 扩展清单文件
 │   └── icons/                # 16/48/128 像素图标
@@ -86,7 +80,7 @@ offline-linkding/
 │   │   ├── popup.css
 │   │   └── popup.ts
 │   ├── manager/
-│   │   ├── index.html        # Linkding 风格全屏书签管理面板
+│   │   ├── index.html        # 全屏书签与笔记管理面板
 │   │   ├── manager.css
 │   │   └── manager.ts
 │   ├── db/
@@ -108,14 +102,9 @@ offline-linkding/
 
 ## 🌐 推送到 GitHub
 
-您已在本地配置好针对 `keepali` 的 GitHub SSH 密钥。
-
-1. 在 GitHub 网页上新建一个公开仓库（例如 `offline-linkding`）：
-   👉 https://github.com/new
-2. 在本项目根目录运行以下命令推送到远端：
 ```bash
-cd ~/Documents/offline-linkding
-git remote add origin git@github.com:keepali/offline-linkding.git
+cd ~/Documents/pinscribe
+git remote add origin git@github.com:keepali/pinscribe.git
 git branch -M main
 git push -u origin main
 ```

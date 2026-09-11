@@ -3,20 +3,20 @@ import { getBookmarkByUrl, saveBookmark } from '../db';
 chrome.runtime.onInstalled.addListener(() => {
   // Context menus
   chrome.contextMenus.create({
-    id: 'linkding-save-page',
-    title: '收藏此网页到 Linkding',
+    id: 'pinscribe-save-page',
+    title: '收藏此网页到 Pinscribe',
     contexts: ['page']
   });
 
   chrome.contextMenus.create({
-    id: 'linkding-open-manager',
-    title: '打开 Linkding 书签管理面板',
+    id: 'pinscribe-open-manager',
+    title: '打开 Pinscribe 书签管理面板',
     contexts: ['action']
   });
 });
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId === 'linkding-save-page' && tab && tab.url) {
+  if (info.menuItemId === 'pinscribe-save-page' && tab && tab.url) {
     await saveBookmark({
       url: tab.url,
       title: tab.title || tab.url,
@@ -34,7 +34,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         if (tab.id) chrome.action.setBadgeText({ text: '', tabId: tab.id });
       }, 2000);
     }
-  } else if (info.menuItemId === 'linkding-open-manager') {
+  } else if (info.menuItemId === 'pinscribe-open-manager') {
     chrome.tabs.create({ url: chrome.runtime.getURL('src/manager/index.html') });
   }
 });

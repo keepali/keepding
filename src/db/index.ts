@@ -1,7 +1,7 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
 import { Bookmark, TagStats } from './schema';
 
-interface LinkdingDB extends DBSchema {
+interface PinscribeDB extends DBSchema {
   bookmarks: {
     key: string;
     value: Bookmark;
@@ -12,14 +12,14 @@ interface LinkdingDB extends DBSchema {
   };
 }
 
-const DB_NAME = 'linkding_offline_db';
+const DB_NAME = 'pinscribe_db';
 const DB_VERSION = 1;
 
-let dbPromise: Promise<IDBPDatabase<LinkdingDB>> | null = null;
+let dbPromise: Promise<IDBPDatabase<PinscribeDB>> | null = null;
 
-export function getDB(): Promise<IDBPDatabase<LinkdingDB>> {
+export function getDB(): Promise<IDBPDatabase<PinscribeDB>> {
   if (!dbPromise) {
-    dbPromise = openDB<LinkdingDB>(DB_NAME, DB_VERSION, {
+    dbPromise = openDB<PinscribeDB>(DB_NAME, DB_VERSION, {
       upgrade(db) {
         if (!db.objectStoreNames.contains('bookmarks')) {
           const store = db.createObjectStore('bookmarks', { keyPath: 'id' });

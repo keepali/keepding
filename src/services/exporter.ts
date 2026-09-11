@@ -10,7 +10,7 @@ export interface BackupFormat {
 export function exportToJSON(bookmarks: Bookmark[]): string {
   const data: BackupFormat = {
     version: '1.0',
-    source: 'offline-linkding',
+    source: 'pinscribe',
     exportedAt: new Date().toISOString(),
     bookmarks: bookmarks,
   };

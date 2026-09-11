@@ -1,7 +1,7 @@
 {
-  "name": "offline-linkding",
+  "name": "pinscribe",
   "version": "1.0.0",
-  "description": "A pure offline Linkding-style Chrome bookmark manager with notes, search, and import/export",
+  "description": "A pure offline Chrome bookmark manager with Markdown notes, search, and import/export",
   "type": "module",
   "scripts": {
     "dev": "vite build --watch",
