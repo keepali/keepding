@@ -6,102 +6,127 @@
   <title>Pinscribe</title>
   <link rel="stylesheet" href="./popup.css">
 </head>
-<body class="p-4 select-none">
-  <!-- Top Header -->
-  <div class="flex items-center justify-between pb-3 border-b border-slate-200">
-    <div class="flex items-center space-x-2">
-      <div class="w-6 h-6 rounded bg-emerald-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
-        L
+<body class="bg-white text-zinc-800 antialiased selection:bg-zinc-200">
+  <div class="w-[390px] p-4 flex flex-col gap-3">
+    <!-- Header -->
+    <header class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-5 h-5 rounded-md bg-zinc-900 flex items-center justify-center text-white shadow-xs">
+          <svg class="w-3 h-3 text-indigo-400" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M5 4a2 2 0 012-2h10a2 2 0 012 2v18l-7-3.5L5 22V4z"/>
+          </svg>
+        </div>
+        <span class="text-xs font-semibold tracking-tight text-zinc-900">Pinscribe</span>
+        <span id="status-pill" class="hidden text-[10px] font-medium px-1.5 py-0.5 rounded-md bg-zinc-100 text-zinc-600">已保存</span>
       </div>
-      <h1 class="font-bold text-slate-800 text-sm">Pinscribe <span class="text-xs font-normal text-slate-500">离线版</span></h1>
-      <span id="status-badge" class="hidden px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-        已收藏
-      </span>
-    </div>
-    <div class="flex items-center space-x-1">
-      <button id="btn-open-manager" title="打开全屏管理面板" class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded transition-colors text-xs flex items-center gap-1 font-medium">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-        管理面板
-      </button>
-    </div>
+
+      <div class="flex items-center gap-1">
+        <button id="btn-open-manager" title="打开书签面板 (⌘O)" class="text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 p-1 rounded-md transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Form -->
+    <form id="bookmark-form" class="flex flex-col gap-2.5">
+      <input type="hidden" id="bookmark-id">
+
+      <!-- Title & URL -->
+      <div class="space-y-1.5">
+        <div>
+          <input
+            type="text"
+            id="title"
+            required
+            placeholder="标题"
+            class="w-full px-2.5 py-1.5 text-xs font-medium text-zinc-900 bg-zinc-50 border border-zinc-200 rounded-lg focus:bg-white focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400"
+          >
+        </div>
+        <div>
+          <input
+            type="url"
+            id="url"
+            required
+            placeholder="https://"
+            class="w-full px-2.5 py-1 text-[11px] text-zinc-500 bg-transparent border border-transparent hover:border-zinc-200 focus:border-zinc-300 focus:bg-zinc-50 rounded-md focus:outline-none transition-all truncate"
+          >
+        </div>
+      </div>
+
+      <!-- Description / Note tabs -->
+      <div class="border border-zinc-200 rounded-lg overflow-hidden bg-zinc-50/50">
+        <div class="flex items-center justify-between px-2.5 py-1 border-b border-zinc-150 bg-zinc-50 text-[11px]">
+          <span class="text-zinc-400 font-medium">笔记</span>
+          <div class="flex items-center gap-1">
+            <button type="button" id="tab-write" class="px-1.5 py-0.5 rounded text-zinc-800 font-medium bg-white shadow-2xs">编辑</button>
+            <button type="button" id="tab-preview" class="px-1.5 py-0.5 rounded text-zinc-400 hover:text-zinc-700">预览</button>
+          </div>
+        </div>
+
+        <div class="p-2 bg-white">
+          <textarea
+            id="notes"
+            rows="3"
+            placeholder="支持 Markdown 记录备忘、摘录..."
+            class="w-full text-xs text-zinc-800 placeholder:text-zinc-400 focus:outline-none resize-none font-mono"
+          ></textarea>
+          <div id="notes-preview" class="hidden min-h-[60px] max-h-[140px] overflow-y-auto text-xs text-zinc-700 markdown-body"></div>
+        </div>
+      </div>
+
+      <!-- Tags & Suggestions -->
+      <div class="space-y-1.5">
+        <input
+          type="text"
+          id="tags-input"
+          placeholder="添加标签 (空格或逗号分隔)"
+          class="w-full px-2.5 py-1.5 text-xs text-zinc-800 bg-zinc-50 border border-zinc-200 rounded-lg focus:bg-white focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 transition-all placeholder:text-zinc-400"
+        >
+        <div id="tag-suggestions" class="flex flex-wrap gap-1 min-h-[20px]"></div>
+      </div>
+
+      <!-- Options -->
+      <div class="flex items-center justify-between pt-1 text-[11px] text-zinc-600">
+        <label class="flex items-center gap-1.5 cursor-pointer hover:text-zinc-900 select-none">
+          <input type="checkbox" id="unread" class="rounded border-zinc-300 text-zinc-900 focus:ring-0 w-3.5 h-3.5 accent-zinc-900">
+          <span>稍后阅读</span>
+        </label>
+        <label class="flex items-center gap-1.5 cursor-pointer hover:text-zinc-900 select-none">
+          <input type="checkbox" id="archived" class="rounded border-zinc-300 text-zinc-900 focus:ring-0 w-3.5 h-3.5 accent-zinc-900">
+          <span>归档</span>
+        </label>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="flex items-center justify-between pt-2 border-t border-zinc-100">
+        <div>
+          <button
+            type="button"
+            id="btn-delete"
+            title="删除此书签"
+            class="hidden text-zinc-400 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-md transition-colors"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] text-zinc-400">⌘S</span>
+          <button
+            type="submit"
+            id="btn-save"
+            class="px-3.5 py-1.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 active:scale-98 rounded-lg shadow-xs transition-all"
+          >
+            保存
+          </button>
+        </div>
+      </div>
+    </form>
   </div>
-
-  <!-- Alert Banner -->
-  <div id="alert-banner" class="hidden my-2 p-2 rounded text-xs"></div>
-
-  <!-- Form -->
-  <form id="bookmark-form" class="mt-3 space-y-3">
-    <input type="hidden" id="bookmark-id">
-
-    <!-- URL -->
-    <div>
-      <label class="block text-xs font-semibold text-slate-600 mb-1" for="url">网址 URL</label>
-      <input type="url" id="url" required class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded focus:bg-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
-    </div>
-
-    <!-- Title -->
-    <div>
-      <label class="block text-xs font-semibold text-slate-600 mb-1" for="title">标题 Title</label>
-      <input type="text" id="title" required class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none">
-    </div>
-
-    <!-- Description -->
-    <div>
-      <label class="block text-xs font-semibold text-slate-600 mb-1" for="description">描述 Description (可选)</label>
-      <textarea id="description" rows="2" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none resize-none" placeholder="关于该页面的简短摘要..."></textarea>
-    </div>
-
-    <!-- Notes (Markdown) -->
-    <div>
-      <div class="flex items-center justify-between mb-1">
-        <label class="text-xs font-semibold text-slate-600" for="notes">Notes 笔记 (支持 Markdown)</label>
-        <button type="button" id="btn-toggle-notes-preview" class="text-xs text-blue-600 hover:text-blue-800 underline">
-          预览
-        </button>
-      </div>
-      <div id="notes-edit-container">
-        <textarea id="notes" rows="3" class="w-full px-2.5 py-1.5 text-xs font-mono bg-white border border-slate-300 rounded focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="支持 Markdown、代码段、检查清单..."></textarea>
-      </div>
-      <div id="notes-preview-container" class="hidden w-full p-2.5 max-h-28 overflow-y-auto bg-slate-50 border border-slate-300 rounded text-xs markdown-body"></div>
-    </div>
-
-    <!-- Tags -->
-    <div>
-      <label class="block text-xs font-semibold text-slate-600 mb-1" for="tags-input">标签 Tags (空格或逗号分隔)</label>
-      <input type="text" id="tags-input" class="w-full px-2.5 py-1.5 text-xs bg-white border border-slate-300 rounded focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="例如: dev, react, tools">
-      <!-- Tag suggestions -->
-      <div id="tag-suggestions" class="flex flex-wrap gap-1 mt-1.5"></div>
-    </div>
-
-    <!-- Checkboxes -->
-    <div class="flex items-center justify-between pt-1">
-      <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
-        <input type="checkbox" id="unread" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5">
-        <span>标记为稍后阅读 (Unread)</span>
-      </label>
-      <label class="flex items-center space-x-2 text-xs text-slate-700 cursor-pointer">
-        <input type="checkbox" id="archived" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-3.5 h-3.5">
-        <span>归档 (Archived)</span>
-      </label>
-    </div>
-
-    <!-- Actions -->
-    <div class="flex items-center justify-between pt-2 border-t border-slate-200">
-      <div>
-        <button type="button" id="btn-delete" class="hidden text-xs text-red-600 hover:text-red-700 font-medium px-2 py-1.5 rounded hover:bg-red-50 transition-colors">
-          删除收藏
-        </button>
-      </div>
-      <div class="flex items-center space-x-2">
-        <span class="text-[10px] text-slate-400">Ctrl+Enter 保存</span>
-        <button type="submit" id="btn-save" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-medium text-xs rounded shadow-sm transition-colors flex items-center gap-1">
-          <span>保存书签</span>
-        </button>
-      </div>
-    </div>
-  </form>
 
   <script type="module" src="./popup.ts"></script>
 </body>

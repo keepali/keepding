@@ -3,317 +3,254 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pinscribe - 纯离线书签与笔记</title>
+  <title>Pinscribe</title>
   <link rel="stylesheet" href="./manager.css">
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col">
-  <!-- Top Navigation Bar -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-      <!-- Logo & Title -->
-      <div class="flex items-center space-x-3 shrink-0">
-        <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold text-base shadow-sm">
-          L
+<body class="bg-[#fafafa] text-zinc-900 min-h-screen flex flex-col antialiased selection:bg-zinc-200">
+  <!-- Top Navigation -->
+  <header class="bg-white/80 backdrop-blur-md border-b border-zinc-200/80 sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+      <!-- Logo -->
+      <div class="flex items-center gap-2.5 shrink-0">
+        <div class="w-6 h-6 rounded-md bg-zinc-900 flex items-center justify-center text-white shadow-xs">
+          <svg class="w-3.5 h-3.5 text-indigo-400" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M5 4a2 2 0 012-2h10a2 2 0 012 2v18l-7-3.5L5 22V4z"/>
+          </svg>
         </div>
-        <div>
-          <span class="font-bold text-slate-900 text-base tracking-tight">Pinscribe</span>
-          <span class="text-xs bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-medium ml-1.5">纯离线</span>
-        </div>
+        <span class="font-semibold text-sm tracking-tight text-zinc-900">Pinscribe</span>
       </div>
 
       <!-- Search Bar -->
-      <div class="flex-1 max-w-2xl relative">
-        <div class="relative">
-          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
+      <div class="flex-1 max-w-xl relative">
+        <div class="relative flex items-center">
+          <svg class="w-3.5 h-3.5 absolute left-3 text-zinc-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
           <input
             type="text"
             id="search-input"
-            class="block w-full pl-9 pr-16 py-2 border border-slate-300 rounded-lg bg-slate-50 text-sm placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-            placeholder="搜索书签、笔记、网址... (支持 #标签 !unread site:域名)"
+            class="w-full pl-8 pr-14 py-1.5 text-xs bg-zinc-100/80 border border-transparent rounded-lg placeholder:text-zinc-400 focus:outline-none focus:bg-white focus:border-zinc-300 focus:ring-2 focus:ring-zinc-100 transition-all"
+            placeholder="搜索书签、笔记、#标签..."
           >
-          <div class="absolute inset-y-0 right-0 pr-2 flex items-center space-x-1">
-            <button id="btn-clear-search" class="hidden text-slate-400 hover:text-slate-600 p-1 rounded-md text-xs">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+          <div class="absolute right-2 flex items-center gap-1">
+            <button id="btn-clear-search" class="hidden text-zinc-400 hover:text-zinc-600 p-0.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
-            <span class="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-semibold text-slate-400 bg-slate-200 rounded border border-slate-300">/</span>
+            <kbd class="hidden sm:inline-block px-1 py-0.2 text-[10px] font-mono text-zinc-400 bg-white border border-zinc-200 rounded shadow-2xs">/</kbd>
           </div>
         </div>
       </div>
 
       <!-- Actions -->
-      <div class="flex items-center space-x-2 shrink-0">
+      <div class="flex items-center gap-2 shrink-0">
         <button
           id="btn-open-add-modal"
-          class="inline-flex items-center px-3.5 py-2 border border-transparent text-xs font-semibold rounded-lg shadow-xs text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 transition-colors gap-1.5"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 active:scale-98 rounded-lg shadow-xs transition-all"
         >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
           </svg>
-          <span>添加书签</span>
+          <span>新建</span>
         </button>
 
         <button
           id="btn-open-io-modal"
-          class="inline-flex items-center px-3 py-2 border border-slate-300 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 transition-colors gap-1.5 shadow-xs"
+          title="数据导入与导出"
+          class="p-1.5 text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100 rounded-lg transition-colors border border-zinc-200/80"
         >
-          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
           </svg>
-          <span>导入/导出</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Container -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 flex gap-8">
-    <!-- Left Sidebar -->
-    <aside class="w-64 shrink-0 hidden md:block space-y-6">
-      <!-- Views Filter -->
-      <nav class="space-y-1">
-        <button
-          data-filter="all"
-          class="sidebar-nav-item active w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg text-slate-900 bg-emerald-50 text-emerald-800 transition-colors"
-        >
-          <div class="flex items-center gap-2.5">
-            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+  <!-- Content Workspace -->
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-6 w-full flex-1 flex gap-8">
+    <!-- Sidebar -->
+    <aside class="w-52 shrink-0 hidden md:flex flex-col gap-6">
+      <nav class="flex flex-col gap-0.5 text-xs font-medium">
+        <button data-filter="all" class="sidebar-nav-item active flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-zinc-200/60 text-zinc-900 transition-colors">
+          <div class="flex items-center gap-2">
+            <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
             </svg>
-            <span>全部书签</span>
+            <span>全部</span>
           </div>
-          <span id="count-all" class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">0</span>
+          <span id="count-all" class="text-[11px] text-zinc-500 font-mono">0</span>
         </button>
 
-        <button
-          data-filter="unread"
-          class="sidebar-nav-item w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
-        >
-          <div class="flex items-center gap-2.5">
-            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <button data-filter="unread" class="sidebar-nav-item flex items-center justify-between px-2.5 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">
+          <div class="flex items-center gap-2">
+            <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <span>稍后阅读</span>
+            <span>稍后读</span>
           </div>
-          <span id="count-unread" class="text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-semibold">0</span>
+          <span id="count-unread" class="text-[11px] text-zinc-400 font-mono">0</span>
         </button>
 
-        <button
-          data-filter="archived"
-          class="sidebar-nav-item w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
-        >
-          <div class="flex items-center gap-2.5">
-            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+        <button data-filter="archived" class="sidebar-nav-item flex items-center justify-between px-2.5 py-1.5 rounded-lg text-zinc-600 hover:bg-zinc-100 transition-colors">
+          <div class="flex items-center gap-2">
+            <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
             </svg>
-            <span>归档箱</span>
+            <span>归档</span>
           </div>
-          <span id="count-archived" class="text-xs bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-semibold">0</span>
+          <span id="count-archived" class="text-[11px] text-zinc-400 font-mono">0</span>
         </button>
       </nav>
 
-      <!-- Tags Section -->
-      <div class="border-t border-slate-200 pt-5">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">标签分类 (Tags)</h3>
-          <button id="btn-clear-tags" class="hidden text-xs text-blue-600 hover:text-blue-800">清除筛选</button>
+      <!-- Tags list -->
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between px-1">
+          <span class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">标签</span>
+          <button id="btn-clear-tags" class="hidden text-[11px] text-zinc-400 hover:text-zinc-700">清除</button>
         </div>
-        <div id="tags-list" class="space-y-1 max-h-[calc(100vh-320px)] overflow-y-auto pr-1">
-          <div class="text-xs text-slate-400 italic py-2">暂无标签</div>
-        </div>
+        <div id="tags-list" class="flex flex-col gap-0.5 max-h-[calc(100vh-280px)] overflow-y-auto pr-1"></div>
       </div>
     </aside>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 min-w-0">
-      <!-- Content Header Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-200 mb-5">
-        <div class="flex items-center gap-3">
-          <h2 id="view-title" class="text-lg font-bold text-slate-800">全部书签</h2>
-          <span id="view-count" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">0 条</span>
+    <!-- Main List Area -->
+    <main class="flex-1 min-w-0 flex flex-col">
+      <!-- Section Bar -->
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-zinc-200/80">
+        <div class="flex items-center gap-2">
+          <h1 id="view-title" class="text-sm font-semibold text-zinc-900">全部</h1>
+          <span id="view-count" class="text-xs text-zinc-400 font-mono">0</span>
         </div>
 
-        <!-- Active tag filters pills -->
-        <div id="active-tag-pills" class="flex flex-wrap gap-1.5 flex-1 max-w-md"></div>
+        <div id="active-tag-pills" class="flex flex-wrap gap-1 items-center"></div>
 
-        <!-- Sort dropdown -->
-        <div class="flex items-center space-x-2">
-          <label for="sort-select" class="text-xs text-slate-500 font-medium">排序:</label>
-          <select id="sort-select" class="text-xs bg-white border border-slate-300 rounded-md px-2.5 py-1.5 text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-            <option value="date_desc">最新添加</option>
-            <option value="date_asc">最早添加</option>
-            <option value="title_asc">标题 (A-Z)</option>
+        <div class="flex items-center gap-1.5">
+          <select id="sort-select" class="text-xs text-zinc-600 bg-transparent border-0 py-1 pl-1 pr-6 focus:ring-0 focus:outline-none cursor-pointer">
+            <option value="date_desc">按时间倒序</option>
+            <option value="date_asc">按时间正序</option>
+            <option value="title_asc">按标题排序</option>
           </select>
         </div>
       </div>
 
       <!-- Bookmarks List -->
-      <div id="bookmarks-container" class="space-y-3">
-        <!-- Bookmark items will be rendered here -->
-      </div>
+      <div id="bookmarks-container" class="flex flex-col gap-2.5"></div>
 
       <!-- Empty State -->
-      <div id="empty-state" class="hidden text-center py-16 bg-white rounded-xl border border-dashed border-slate-300">
-        <div class="w-12 h-12 mx-auto mb-3 text-slate-300">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
-        </div>
-        <h3 class="text-sm font-semibold text-slate-700 mb-1">未找到任何书签</h3>
-        <p class="text-xs text-slate-500 max-w-sm mx-auto mb-4">您可以点击右上角“添加书签”或者“导入/导出”从现有的 Chrome 书签或 JSON 文件恢复。</p>
+      <div id="empty-state" class="hidden text-center py-20">
+        <p class="text-xs text-zinc-400 font-medium">暂无书签</p>
       </div>
     </main>
   </div>
 
   <!-- Add / Edit Modal -->
-  <div id="bookmark-modal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl max-w-xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-        <h3 id="modal-title" class="font-bold text-slate-800 text-base">添加书签</h3>
-        <button id="btn-close-modal" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
+  <div id="bookmark-modal" class="fixed inset-0 z-50 hidden bg-black/20 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl border border-zinc-200/80 max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-zinc-100">
+        <h2 id="modal-title" class="text-xs font-semibold text-zinc-900">编辑书签</h2>
+        <button id="btn-close-modal" class="text-zinc-400 hover:text-zinc-700 p-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
-      <form id="modal-form" class="p-6 overflow-y-auto space-y-4 flex-1">
+      <form id="modal-form" class="p-5 flex flex-col gap-3">
         <input type="hidden" id="modal-id">
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1" for="modal-url">网址 URL *</label>
-          <input type="url" id="modal-url" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="https://example.com">
+          <label class="block text-[11px] font-medium text-zinc-500 mb-1" for="modal-bm-title">标题</label>
+          <input type="text" id="modal-bm-title" required class="w-full px-3 py-1.5 text-xs text-zinc-900 border border-zinc-200 rounded-lg focus:border-zinc-400 focus:outline-none transition-colors">
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1" for="modal-bm-title">标题 Title *</label>
-          <input type="text" id="modal-bm-title" required class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="页面标题">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1" for="modal-desc">简短描述 Description (可选)</label>
-          <textarea id="modal-desc" rows="2" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none resize-none" placeholder="关于该网站的简短摘要..."></textarea>
+          <label class="block text-[11px] font-medium text-zinc-500 mb-1" for="modal-url">网址</label>
+          <input type="url" id="modal-url" required class="w-full px-3 py-1.5 text-xs text-zinc-900 border border-zinc-200 rounded-lg focus:border-zinc-400 focus:outline-none transition-colors font-mono">
         </div>
 
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label class="text-xs font-semibold text-slate-700" for="modal-notes">Notes 笔记 (支持 Markdown)</label>
-            <button type="button" id="modal-toggle-preview" class="text-xs text-blue-600 hover:text-blue-800">
-              预览效果
-            </button>
+            <label class="text-[11px] font-medium text-zinc-500" for="modal-notes">笔记 (Markdown)</label>
+            <button type="button" id="modal-toggle-preview" class="text-[11px] text-zinc-400 hover:text-zinc-700">预览</button>
           </div>
           <div id="modal-notes-edit">
-            <textarea id="modal-notes" rows="4" class="w-full px-3 py-2 text-sm font-mono border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="写下你的想法、备忘、代码片段..."></textarea>
+            <textarea id="modal-notes" rows="4" class="w-full px-3 py-2 text-xs font-mono text-zinc-900 border border-zinc-200 rounded-lg focus:border-zinc-400 focus:outline-none resize-none transition-colors" placeholder="支持 Markdown..."></textarea>
           </div>
-          <div id="modal-notes-preview" class="hidden p-3 max-h-48 overflow-y-auto bg-slate-50 border border-slate-300 rounded-lg text-sm markdown-body"></div>
+          <div id="modal-notes-preview" class="hidden p-3 max-h-48 overflow-y-auto bg-zinc-50 border border-zinc-200 rounded-lg text-xs markdown-body"></div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1" for="modal-tags">标签 Tags (空格或逗号分隔)</label>
-          <input type="text" id="modal-tags" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none" placeholder="dev, tools, reading">
-          <div id="modal-tag-suggestions" class="flex flex-wrap gap-1.5 mt-2"></div>
+          <label class="block text-[11px] font-medium text-zinc-500 mb-1" for="modal-tags">标签</label>
+          <input type="text" id="modal-tags" class="w-full px-3 py-1.5 text-xs text-zinc-900 border border-zinc-200 rounded-lg focus:border-zinc-400 focus:outline-none transition-colors" placeholder="标签用空格或逗号分隔">
+          <div id="modal-tag-suggestions" class="flex flex-wrap gap-1 mt-1.5"></div>
         </div>
 
-        <div class="flex items-center space-x-6 pt-1">
-          <label class="flex items-center space-x-2 text-sm text-slate-700 cursor-pointer">
-            <input type="checkbox" id="modal-unread" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4">
-            <span>标记为稍后阅读 (Unread)</span>
+        <div class="flex items-center gap-5 pt-1 text-xs text-zinc-600">
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="modal-unread" class="rounded border-zinc-300 text-zinc-900 focus:ring-0 w-3.5 h-3.5 accent-zinc-900">
+            <span>稍后阅读</span>
           </label>
-          <label class="flex items-center space-x-2 text-sm text-slate-700 cursor-pointer">
-            <input type="checkbox" id="modal-archived" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4">
-            <span>归档 (Archived)</span>
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" id="modal-archived" class="rounded border-zinc-300 text-zinc-900 focus:ring-0 w-3.5 h-3.5 accent-zinc-900">
+            <span>归档</span>
           </label>
         </div>
 
-        <div class="pt-4 border-t border-slate-200 flex items-center justify-end space-x-3">
-          <button type="button" id="btn-cancel-modal" class="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-            取消
-          </button>
-          <button type="submit" id="btn-submit-modal" class="px-5 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 rounded-lg shadow-xs transition-colors">
-            保存
-          </button>
+        <div class="pt-3 border-t border-zinc-100 flex items-center justify-end gap-2">
+          <button type="button" id="btn-cancel-modal" class="px-3 py-1.5 text-xs text-zinc-600 hover:text-zinc-900 rounded-lg transition-colors">取消</button>
+          <button type="submit" class="px-3.5 py-1.5 text-xs font-medium text-white bg-zinc-900 hover:bg-zinc-800 rounded-lg shadow-xs transition-colors">保存</button>
         </div>
       </form>
     </div>
   </div>
 
   <!-- Import / Export Modal -->
-  <div id="io-modal" class="fixed inset-0 z-50 hidden bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-xl max-w-xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
-        <h3 class="font-bold text-slate-800 text-base">导入与导出数据</h3>
-        <button id="btn-close-io" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
+  <div id="io-modal" class="fixed inset-0 z-50 hidden bg-black/20 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl border border-zinc-200/80 max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-zinc-100">
+        <h2 class="text-xs font-semibold text-zinc-900">备份与导入</h2>
+        <button id="btn-close-io" class="text-zinc-400 hover:text-zinc-700 p-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
         </button>
       </div>
 
-      <div class="p-6 overflow-y-auto space-y-6">
-        <!-- Export Section -->
-        <div>
-          <h4 class="text-sm font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            导出书签 (Export)
-          </h4>
-          <p class="text-xs text-slate-500 mb-3">备份您的本地数据，不受任何云端限制。</p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <button id="btn-export-json" class="p-3 border border-slate-200 hover:border-emerald-500 rounded-lg text-left hover:bg-emerald-50/40 transition-all">
-              <div class="font-semibold text-xs text-slate-800">全量 JSON 备份</div>
-              <div class="text-[11px] text-slate-500 mt-1">包含所有书签、完整 Notes、标签、阅读状态等</div>
+      <div class="p-5 flex flex-col gap-5">
+        <!-- Export -->
+        <div class="space-y-2">
+          <div class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">导出备份</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btn-export-json" class="p-2.5 text-left border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 rounded-lg transition-colors">
+              <div class="text-xs font-medium text-zinc-900">JSON 备份</div>
+              <div class="text-[10px] text-zinc-400 mt-0.5">完整笔记与元数据</div>
             </button>
-            <button id="btn-export-html" class="p-3 border border-slate-200 hover:border-emerald-500 rounded-lg text-left hover:bg-emerald-50/40 transition-all">
-              <div class="font-semibold text-xs text-slate-800">Netscape HTML 书签</div>
-              <div class="text-[11px] text-slate-500 mt-1">兼容 Chrome/Firefox 书签、Pocket、Raindrop、Linkding</div>
+            <button id="btn-export-html" class="p-2.5 text-left border border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 rounded-lg transition-colors">
+              <div class="text-xs font-medium text-zinc-900">HTML 书签</div>
+              <div class="text-[10px] text-zinc-400 mt-0.5">兼容浏览器书签</div>
             </button>
           </div>
         </div>
 
-        <div class="border-t border-slate-200"></div>
+        <!-- Import -->
+        <div class="space-y-2">
+          <div class="text-[11px] font-medium uppercase tracking-wider text-zinc-400">导入书签</div>
+          <label class="flex items-center gap-1.5 text-xs text-zinc-600 mb-2 cursor-pointer">
+            <input type="checkbox" id="import-overwrite" class="rounded border-zinc-300 text-zinc-900 focus:ring-0 w-3.5 h-3.5 accent-zinc-900">
+            <span>覆盖已存在相同网址的数据</span>
+          </label>
 
-        <!-- Import Section -->
-        <div>
-          <h4 class="text-sm font-bold text-slate-800 mb-1.5 flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          <div id="drop-zone" class="border border-dashed border-zinc-200 hover:border-zinc-400 rounded-lg p-5 text-center cursor-pointer bg-zinc-50/50 hover:bg-zinc-50 transition-colors">
+            <input type="file" id="file-import" accept=".json,.html,.htm" class="hidden">
+            <svg class="w-5 h-5 mx-auto text-zinc-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
-            导入书签 (Import)
-          </h4>
-          <p class="text-xs text-slate-500 mb-3">支持从浏览器导出的书签 HTML 文件，或本插件导出的 JSON 备份恢复。</p>
-
-          <div class="space-y-3">
-            <div class="flex items-center space-x-2">
-              <input type="checkbox" id="import-overwrite" class="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4">
-              <label for="import-overwrite" class="text-xs text-slate-700 cursor-pointer">遇到相同网址时覆盖更新已存数据（默认跳过）</label>
-            </div>
-
-            <!-- Upload Area -->
-            <div class="border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-lg p-6 text-center transition-colors cursor-pointer bg-slate-50" id="drop-zone">
-              <input type="file" id="file-import" accept=".json,.html,.htm" class="hidden">
-              <svg class="w-8 h-8 mx-auto text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <div class="text-xs font-semibold text-slate-700 mb-0.5">点击选择文件 或 将文件拖入此处</div>
-              <div class="text-[11px] text-slate-400">支持 .json 或 .html 书签文件</div>
-            </div>
-
-            <!-- Import status feedback -->
-            <div id="import-result" class="hidden p-3 rounded-lg text-xs"></div>
+            <div class="text-xs font-medium text-zinc-700">选择文件或拖入此处</div>
+            <div class="text-[10px] text-zinc-400 mt-0.5">支持 .json 或 .html 书签</div>
           </div>
+          <div id="import-result" class="hidden text-xs p-2.5 rounded-lg"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Toast Notification -->
-  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden px-4 py-2.5 rounded-lg shadow-lg text-xs font-medium text-white transition-all transform duration-200"></div>
+  <!-- Minimal Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 hidden px-3 py-1.5 rounded-lg shadow-md text-xs font-medium text-white bg-zinc-900 transition-all"></div>
 
   <script type="module" src="./manager.ts"></script>
 </body>
